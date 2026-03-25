@@ -121,37 +121,12 @@
 	height: 14px;
 	pointer-events: none;
 	transform: rotateX(0deg) scaleX(1.45);
-	transform: rotateX(0deg) scaleX(1.45);
 	transform-origin: center;
 	transform-style: preserve-3d;
 	/* 用 keyframes 控制：箭头 -> 直线 -> 箭头 */
 	transition: none;
 	will-change: transform;
 	backface-visibility: visible;
-}
-
-@keyframes trapezoidIconToDown {
-	0% {
-		transform: rotateX(0deg) scaleX(1.45);
-	}
-	50% {
-		transform: rotateX(90deg) scaleX(1.45);
-	}
-	100% {
-		transform: rotateX(180deg) scaleX(1.45);
-	}
-}
-
-@keyframes trapezoidIconToUp {
-	0% {
-		transform: rotateX(180deg) scaleX(1.45);
-	}
-	50% {
-		transform: rotateX(90deg) scaleX(1.45);
-	}
-	100% {
-		transform: rotateX(0deg) scaleX(1.45);
-	}
 }
 
 @keyframes trapezoidIconToDown {
