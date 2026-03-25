@@ -1,0 +1,16 @@
+{
+	"profilePageTitle": "秋瑾的个人主页",
+	"aboutPageTitle": "秋瑾的简介",
+	"linkPageTitle": "秋瑾的项目链接",
+	"profile": {
+		"title": "首页"
+	},
+	"about": {
+		"title": "关于"
+	},
+	"navblog": "博客",
+	"navbrandTitle": "秋天快乐",
+	"link": {
+		"title": "链接"
+	}
+}
