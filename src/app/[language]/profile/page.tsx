@@ -1,5 +1,4 @@
 import { getDictionary, type Locale } from '@/dictionaries';
-import styles from './layout.module.css';
 
 interface PageProps {
 	params: Promise<{ language: Locale }>;
@@ -10,10 +9,10 @@ export default async function ProfilePage({ params }: PageProps) {
 	const dictionary = await getDictionary(language);
 
 	return (
-		<>
-			<p className={styles['load']}>
+		<div>
+			<p>
 				<strong>页面标题:</strong> {dictionary.profile.title}
 			</p>
-		</>
+		</div>
 	);
 }

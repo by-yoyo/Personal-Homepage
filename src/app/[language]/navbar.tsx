@@ -16,7 +16,7 @@ interface NavbarProps {
 
 export default function Navbar({ language, labels }: NavbarProps) {
 	return (
-		<div className={styles.wrapper}>
+		<>
 			<input
 				id='nav-collapse-toggle'
 				type='checkbox'
@@ -65,6 +65,6 @@ export default function Navbar({ language, labels }: NavbarProps) {
 			>
 				<ChevronUp className={styles.trapezoidIcon} strokeWidth={3} />
 			</label>
-		</div>
+		</>
 	);
 }

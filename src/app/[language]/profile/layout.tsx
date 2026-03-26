@@ -6,6 +6,11 @@ import {
 	isValidLocale,
 	type Locale,
 } from '@/dictionaries';
+import LeftTopPage from './left-top/page';
+import LeftBottomPage from './left-bottom/page';
+import RightTopPage from './right-top/page';
+import RightBottomPage from './right-bottom/page';
+import styles from './layout.module.css';
 
 interface LayoutProps {
 	children: React.ReactNode;
@@ -31,8 +36,19 @@ export default function RootLayout({
 	children,
 }: Readonly<LayoutProps>) {
 	return (
-		<div>
-			<div>{children}</div>
+		<div className={styles.profileLayout}>
+			<div className={styles.profileGrid}>
+				<div className={styles.leftColumn}>
+					<LeftTopPage />
+					<LeftBottomPage />
+				</div>
+				<div className={styles.rightColumn}>
+					<RightTopPage />
+					<RightBottomPage />
+				</div>
+			</div>
+
+			<div className={styles.children}>{children}</div>
 		</div>
 	);
 }

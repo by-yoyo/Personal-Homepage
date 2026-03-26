@@ -2,14 +2,14 @@
 	"profilePageTitle": "Qiu Jin's Personal Homepage",
 	"aboutPageTitle": "About Qiu Jin",
 	"linkPageTitle": "Qiu Jin's Project Links",
+	"navblog": "Blog",
+	"navbrandTitle": "Qiu Jin",
 	"profile": {
 		"title": "Homepage"
 	},
 	"about": {
 		"title": "About"
 	},
-	"navblog": "Blog",
-	"navbrandTitle": "Happy Autumn",
 	"link": {
 		"title": "Link"
 	}

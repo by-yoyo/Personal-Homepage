@@ -1,1 +1,36 @@
 @reference "tailwindcss";
+
+.profileLayout {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 25px 50px;
+	box-sizing: border-box;
+}
+
+.profileGrid {
+	display: flex;
+	gap: 16px;
+}
+
+.leftColumn {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	flex: 0 0 300px;
+	width: 300px;
+	min-width: 0;
+}
+
+.rightColumn {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	flex: 1;
+	min-width: 0;
+}
+
+.children {
+	min-width: 0;
+}
+
