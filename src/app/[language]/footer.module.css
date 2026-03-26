@@ -37,6 +37,7 @@
 	-webkit-backdrop-filter: blur(10px);
 	backdrop-filter: blur(10px);
 	cursor: pointer;
+	z-index: 2;
 }
 
 .subBtn {
@@ -58,6 +59,7 @@
 	pointer-events: none;
 	opacity: 0;
 	transform: translate(0px, 0px) scale(0.45);
+	z-index: 1;
 }
 
 .subBtn:hover {
