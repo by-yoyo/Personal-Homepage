@@ -1,6 +1,6 @@
 import styles from './page.module.css';
 
-export default function LeftBottomPage() {
+export default function RightBottomCard() {
 	return <div className={styles.box} />;
 }
 

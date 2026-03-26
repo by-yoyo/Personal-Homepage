@@ -6,6 +6,9 @@
 
 @import "./add-globals.css";
 
+/*
+* 请不要随意修改这个css文件，除非你非常确定你在做什么。
+*/
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

@@ -2,6 +2,7 @@ import React from 'react';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Navbar from './navbar';
+import Footer from './footer';
 //import ThreeScene from '@/components/threescene';
 import {
 	defaultLocale,
@@ -47,7 +48,9 @@ export default async function RootLayout({
 					}}
 				/>
 				{/* 页面的主要内容 */}
-				<div className='relative z-10 flex-1 pt-[66px]'>{children}</div>
+				<div className='relative z-10 flex-1 pt-[66px] pb-[90px]'>
+					{children}
+				</div>
 				{/* 背景 */}
 				<div className='absolute inset-0 -z-10 pointer-events-none bg-cover bg-center bg-no-repeat layout-bg' />
 				{/* 3D 场景 */}
@@ -56,6 +59,8 @@ export default async function RootLayout({
 					<ThreeScene className='h-full min-h-screen' />
 				</div>
 				*/}
+				{/* 页脚 */}
+				<Footer locale={locale} />
 			</body>
 		</html>
 	);

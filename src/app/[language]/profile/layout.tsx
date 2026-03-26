@@ -6,10 +6,10 @@ import {
 	isValidLocale,
 	type Locale,
 } from '@/dictionaries';
-import LeftTopPage from './left-top/page';
-import LeftBottomPage from './left-bottom/page';
-import RightTopPage from './right-top/page';
-import RightBottomPage from './right-bottom/page';
+import LeftTopCard from './left-top/card';
+import LeftBottomCard from './left-bottom/card';
+import RightTopCard from './right-top/card';
+import RightBottomCard from './right-bottom/card';
 import styles from './layout.module.css';
 
 interface LayoutProps {
@@ -39,12 +39,12 @@ export default function RootLayout({
 		<div className={styles.profileLayout}>
 			<div className={styles.profileGrid}>
 				<div className={styles.leftColumn}>
-					<LeftTopPage />
-					<LeftBottomPage />
+					<LeftTopCard />
+					<LeftBottomCard />
 				</div>
 				<div className={styles.rightColumn}>
-					<RightTopPage />
-					<RightBottomPage />
+					<RightTopCard />
+					<RightBottomCard />
 				</div>
 			</div>
 

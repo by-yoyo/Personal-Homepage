@@ -1,0 +1,33 @@
+.footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 10;
+	pointer-events: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.inner {
+	width: 100%;
+	max-width: 700px;
+	padding: 0 16px;
+}
+
+.btn {
+	pointer-events: auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--navbar-text);
+	padding: 8px;
+	border-radius: 10px;
+	text-decoration: none;
+}
+
+.btn:hover {
+	background: rgba(0, 0, 0, 0.06);
+}
+
