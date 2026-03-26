@@ -5,14 +5,6 @@
 	pointer-events: none;
 }
 
-.toggle {
-	position: fixed;
-	opacity: 0;
-	width: 1px;
-	height: 1px;
-	pointer-events: none;
-}
-
 .actionWrap {
 	position: fixed;
 	right: 25px;
@@ -40,6 +32,45 @@
 	z-index: 2;
 }
 
+.mainIcon {
+	display: inline-flex;
+}
+
+.mainIconSpinLeft {
+	display: inline-flex;
+	transform-origin: center;
+	animation-name: spinLeft360;
+	animation-duration: var(--spin-duration, 970ms);
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: 1;
+}
+
+.mainIconSpinRight {
+	display: inline-flex;
+	transform-origin: center;
+	animation-name: spinRight180;
+	animation-duration: var(--spin-duration, 420ms);
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: 1;
+}
+
+@keyframes spinLeft360 {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(-360deg);
+	}
+}
+@keyframes spinRight180 {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(180deg);
+	}
+}
+
 .subBtn {
 	position: absolute;
 	top: 50%;
@@ -58,8 +89,6 @@
 	cursor: pointer;
 	pointer-events: none;
 	opacity: 0;
-	/* closed 基础态必须与所有 out keyframes 的 100% 位置一致，避免结束后跳动 */
-	transform: translate(-15px, -15px) scale(0.45);
 	/* 收起动画打断时，footer.tsx 会把“当前位置 transform/opacity”写到这些变量 */
 	--from-x: -15px;
 	--from-y: -15px;
@@ -73,19 +102,10 @@
 	background: rgba(255, 255, 255, 0.28);
 }
 
-/* 四个按钮的“右上 1/4 圆弧”位置（相对主按钮中心） */
-.sub1 {
-	transform: translate(-15px, -15px) scale(0.45);
-}
-
-.sub2 {
-	transform: translate(-15px, -15px) scale(0.45);
-}
-
-.sub3 {
-	transform: translate(-15px, -15px) scale(0.45);
-}
-
+/* 子按钮位置由 keyframes 控制；closed 基础态 transform 由 .sub1~.sub4 提供 */
+.sub1,
+.sub2,
+.sub3,
 .sub4 {
 	transform: translate(-15px, -15px) scale(0.45);
 }
