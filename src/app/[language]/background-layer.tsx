@@ -27,7 +27,7 @@ export default function BackgroundLayer({
 		const el = imageLayerRef.current;
 		if (!el) return;
 		el.classList.remove('layout-bg-fade');
-		// 使用双 RAF 保证浏览器提交“移除类”后再添加，动画稳定重播。
+		// 双 RAF：确保“移除类”先被浏览器提交，再添加类，保证每次都重播动画
 		window.requestAnimationFrame(() => {
 			window.requestAnimationFrame(() => {
 				el.classList.add('layout-bg-fade');
@@ -47,7 +47,12 @@ export default function BackgroundLayer({
 			console.warn('[BackgroundLayer] 随机图预加载失败:', url);
 		};
 		preload.src = url;
-	}, [setBackgroundVar, replayFadeAnimation]);
+	}, [replayFadeAnimation, setBackgroundVar]);
+
+	useEffect(() => {
+		const initialUrl = `url("${BACKGROUND_RANDOM_IMAGE_API}")`;
+		setBackgroundVar('--layout-random-bg-url', initialUrl);
+	}, [setBackgroundVar]);
 
 	useEffect(() => {
 		const el = imageLayerRef.current;
@@ -60,10 +65,6 @@ export default function BackgroundLayer({
 	}, []);
 
 	useEffect(() => {
-		setBackgroundVar('--layout-random-bg-url', `url("${BACKGROUND_RANDOM_IMAGE_API}")`);
-	}, [setBackgroundVar]);
-
-	useEffect(() => {
 		const mode = showScene ? BACKGROUND_MODE_SCENE : BACKGROUND_MODE_IMAGE;
 		window.localStorage.setItem(BACKGROUND_MODE_STORAGE_KEY, mode);
 		document.cookie = `background-mode=${mode}; path=/; max-age=31536000; samesite=lax`;
@@ -71,7 +72,6 @@ export default function BackgroundLayer({
 
 	useEffect(() => {
 		const handleToggle = () => {
-			// 切到 3D 时延后一帧挂载 Canvas，优先让按钮点击反馈先渲染。
 			setShowScene((prev) => {
 				if (!prev) {
 					window.requestAnimationFrame(() => setShowScene(true));

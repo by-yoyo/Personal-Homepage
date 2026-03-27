@@ -17,18 +17,52 @@
 }
 
 .layout-bg-fade {
-    animation: layout-bg-fade-in 1300ms cubic-bezier(0.22, 1, 0.36, 1);
+    animation: layout-bg-fade-in 2300ms cubic-bezier(0.22, 1, 0.36, 1);
+    animation-fill-mode: both;
     will-change: opacity, filter;
 }
 
 @keyframes layout-bg-fade-in {
     from {
-        opacity: 0.9;
-        filter: blur(0.6px);
+        opacity: 0.65;
+        filter: blur(2px) brightness(0.97);
     }
     to {
         opacity: 1;
-        filter: blur(0);
+        filter: blur(0) brightness(1);
     }
+}
+
+.layout-bg-stack {
+    position: relative;
+    overflow: hidden;
+}
+
+.layout-bg-layer {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.layout-bg-layer-base {
+    opacity: 1;
+    transition: opacity 1300ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity;
+}
+
+.layout-bg-layer-overlay {
+    opacity: 0;
+    transition: opacity 1300ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity;
+}
+
+.layout-bg-stack[data-crossfading='true'] .layout-bg-layer-base {
+    opacity: 0;
+}
+
+.layout-bg-stack[data-crossfading='true'] .layout-bg-layer-overlay {
+    opacity: 1;
 }
 
