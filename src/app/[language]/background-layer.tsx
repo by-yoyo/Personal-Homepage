@@ -18,35 +18,54 @@ export default function BackgroundLayer({
 	initialMode: BackgroundMode;
 }) {
 	const [showScene, setShowScene] = useState(initialMode === BACKGROUND_MODE_SCENE);
-	const [bgFadeTick, setBgFadeTick] = useState(0);
+	const imageLayerRef = useRef<HTMLDivElement | null>(null);
 	const showSceneRef = useRef(showScene);
 	const refreshSeqRef = useRef(0);
 	const setBackgroundVar = useCallback((name: string, value: string) => {
 		document.documentElement.style.setProperty(name, value);
 	}, []);
+	const replayFadeAnimation = useCallback(() => {
+		const el = imageLayerRef.current;
+		if (!el) return;
+		el.classList.remove('layout-bg-fade');
+		// 使用双 RAF 保证浏览器提交“移除类”后再添加，动画稳定重播。
+		window.requestAnimationFrame(() => {
+			window.requestAnimationFrame(() => {
+				el.classList.add('layout-bg-fade');
+			});
+		});
+	}, []);
 	const refreshRandomBackground = useCallback(() => {
 		const seq = ++refreshSeqRef.current;
 		const url = `${BACKGROUND_RANDOM_IMAGE_API}?t=${Date.now()}`;
-		const nextBgCss = `url("${url}")`;
 		const preload = new Image();
 		preload.onload = () => {
 			if (seq !== refreshSeqRef.current) return;
-			setBackgroundVar('--layout-random-bg-url', nextBgCss);
-			setBgFadeTick((v) => v + 1);
+			setBackgroundVar('--layout-random-bg-url', `url("${url}")`);
+			replayFadeAnimation();
 		};
 		preload.onerror = () => {
 			console.warn('[BackgroundLayer] 随机图预加载失败:', url);
 		};
 		preload.src = url;
-	}, [setBackgroundVar]);
+	}, [setBackgroundVar, replayFadeAnimation]);
+
+	useEffect(() => {
+		const el = imageLayerRef.current;
+		if (!el) return;
+		const handleAnimationEnd = () => {
+			el.classList.remove('layout-bg-fade');
+		};
+		el.addEventListener('animationend', handleAnimationEnd);
+		return () => el.removeEventListener('animationend', handleAnimationEnd);
+	}, []);
 
 	useEffect(() => {
 		showSceneRef.current = showScene;
 	}, [showScene]);
 
 	useEffect(() => {
-		const fallback = `url("${BACKGROUND_RANDOM_IMAGE_API}")`;
-		setBackgroundVar('--layout-random-bg-url', fallback);
+		setBackgroundVar('--layout-random-bg-url', `url("${BACKGROUND_RANDOM_IMAGE_API}")`);
 	}, [setBackgroundVar]);
 
 	useEffect(() => {
@@ -84,8 +103,8 @@ export default function BackgroundLayer({
 
 	return (
 		<div
-			key={bgFadeTick}
-			className='absolute inset-0 -z-10 pointer-events-none bg-cover bg-center bg-no-repeat layout-bg layout-bg-fade'
+			ref={imageLayerRef}
+			className='absolute inset-0 -z-10 pointer-events-none bg-cover bg-center bg-no-repeat layout-bg'
 		/>
 	);
 }
