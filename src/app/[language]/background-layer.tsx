@@ -24,8 +24,9 @@ export default function BackgroundLayer({
 	const [baseSrc, setBaseSrc] = useState(BACKGROUND_RANDOM_IMAGE_API);
 	const [overlaySrc, setOverlaySrc] = useState(BACKGROUND_RANDOM_IMAGE_API);
 	const refreshSeqRef = useRef(0);
+	const refreshCooldownUntilRef = useRef(0);
+	const toggleCooldownUntilRef = useRef(0);
 	const crossfadeTimerRef = useRef<number | null>(null);
-	const CROSSFADE_DURATION_MS = 1300;
 	const CROSSFADE_END_DELAY_MS = 1350;
 
 	const setBackgroundVar = useCallback((name: string, value: string) => {
@@ -81,6 +82,10 @@ export default function BackgroundLayer({
 
 	useEffect(() => {
 		const handleToggle = () => {
+			const now = Date.now();
+			if (now < toggleCooldownUntilRef.current) return;
+			toggleCooldownUntilRef.current = now + 5000;
+
 			setShowScene((prev) => {
 				if (!prev) {
 					window.requestAnimationFrame(() => setShowScene(true));
@@ -95,7 +100,12 @@ export default function BackgroundLayer({
 				crossfadeTimerRef.current = null;
 			}
 		};
-		const handleRefresh = () => refreshRandomBackground();
+		const handleRefresh = () => {
+			const now = Date.now();
+			if (now < refreshCooldownUntilRef.current) return;
+			refreshCooldownUntilRef.current = now + 2000;
+			refreshRandomBackground();
+		};
 		window.addEventListener(BACKGROUND_TOGGLE_EVENT, handleToggle);
 		window.addEventListener(BACKGROUND_REFRESH_EVENT, handleRefresh);
 		return () => {

@@ -47,9 +47,13 @@ export default function Footer({ locale }: { locale: Locale }) {
 
 	const [animState, setAnimState] = useState<'closed' | 'opening' | 'closing'>('closed');
 	const [spinNonce, setSpinNonce] = useState(0);
+	const [bgRefreshCoolingDown, setBgRefreshCoolingDown] = useState(false);
+	const [bgToggleCoolingDown, setBgToggleCoolingDown] = useState(false);
 	const closingTimerRef = useRef<number | null>(null);
 	const animStartAtRef = useRef<number | null>(null);
 	const actionWrapRef = useRef<HTMLDivElement | null>(null);
+	const bgRefreshCooldownTimerRef = useRef<number | null>(null);
+	const bgToggleCooldownTimerRef = useRef<number | null>(null);
 
 	const subRefs = useRef<Record<SubKey, HTMLButtonElement | null>>({
 		sub1: null,
@@ -63,6 +67,19 @@ export default function Footer({ locale }: { locale: Locale }) {
 	useEffect(() => {
 		document.documentElement.classList.toggle('dark', isDark);
 	}, [isDark]);
+
+	useEffect(() => {
+		return () => {
+			if (bgRefreshCooldownTimerRef.current) {
+				window.clearTimeout(bgRefreshCooldownTimerRef.current);
+				bgRefreshCooldownTimerRef.current = null;
+			}
+			if (bgToggleCooldownTimerRef.current) {
+				window.clearTimeout(bgToggleCooldownTimerRef.current);
+				bgToggleCooldownTimerRef.current = null;
+			}
+		};
+	}, []);
 
 	function toggleTheme() {
 		const nextIsDark = !isDark;
@@ -189,12 +206,36 @@ export default function Footer({ locale }: { locale: Locale }) {
 					let onClick: (() => void) | undefined;
 					switch (key) {
 						case 'sub1':
-							onClick = () =>
+							onClick = () => {
+								if (bgRefreshCoolingDown) return;
+								setBgRefreshCoolingDown(true);
 								window.dispatchEvent(new Event(BACKGROUND_REFRESH_EVENT));
+
+								if (bgRefreshCooldownTimerRef.current) {
+									window.clearTimeout(bgRefreshCooldownTimerRef.current);
+									bgRefreshCooldownTimerRef.current = null;
+								}
+								bgRefreshCooldownTimerRef.current = window.setTimeout(() => {
+									setBgRefreshCoolingDown(false);
+									bgRefreshCooldownTimerRef.current = null;
+								}, 2000);
+							};
 							break;
 						case 'sub2':
-							onClick = () =>
+							onClick = () => {
+								if (bgToggleCoolingDown) return;
+								setBgToggleCoolingDown(true);
 								window.dispatchEvent(new Event(BACKGROUND_TOGGLE_EVENT));
+
+								if (bgToggleCooldownTimerRef.current) {
+									window.clearTimeout(bgToggleCooldownTimerRef.current);
+									bgToggleCooldownTimerRef.current = null;
+								}
+								bgToggleCooldownTimerRef.current = window.setTimeout(() => {
+									setBgToggleCoolingDown(false);
+									bgToggleCooldownTimerRef.current = null;
+								}, 5000);
+							};
 							break;
 						case 'sub3':
 							onClick = () => router.push(`/${locale}/profile`);
@@ -226,6 +267,15 @@ export default function Footer({ locale }: { locale: Locale }) {
 							className={`${styles.subBtn} ${styles[key]}`}
 							aria-label={ariaLabel}
 							onClick={onClick}
+							disabled={
+								key === 'sub1'
+									? bgRefreshCoolingDown
+									: key === 'sub2'
+										? bgToggleCoolingDown
+										: false
+							}
+							data-bg-refresh={key === 'sub1' ? 'true' : undefined}
+							data-bg-toggle={key === 'sub2' ? 'true' : undefined}
 							ref={(el) => {
 								subRefs.current[key] = el;
 							}}

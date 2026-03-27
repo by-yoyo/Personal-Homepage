@@ -81,3 +81,16 @@
     filter: blur(0px) brightness(1);
 }
 
+/* 切换背景按钮：点击后 5s 冷却禁用态 */
+button[data-bg-toggle="true"][disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: grayscale(0.2);
+}
+
+button[data-bg-refresh="true"][disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: grayscale(0.2);
+}
+
