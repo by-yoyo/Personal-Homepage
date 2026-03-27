@@ -21,6 +21,23 @@ const geistMono = Geist_Mono({
 	subsets: ['latin'],
 });
 
+const themeInitScript = `
+(() => {
+  try {
+    const saved = localStorage.getItem('theme');
+    const isDark = saved
+      ? saved === 'dark'
+      : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.classList.toggle('dark', isDark);
+  } catch {
+    document.documentElement.classList.toggle(
+      'dark',
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    );
+  }
+})();
+`;
+
 export default async function RootLayout({
 	children,
 	params,
@@ -33,7 +50,10 @@ export default async function RootLayout({
 	const dictionary = await getDictionary(locale);
 
 	return (
-		<html lang={locale}>
+		<html lang={locale} suppressHydrationWarning>
+			<head>
+				<script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+			</head>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col relative`}>
 				{/* 导航栏 */}

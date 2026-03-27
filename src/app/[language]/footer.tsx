@@ -1,11 +1,48 @@
 'use client';
-import { Mail, Settings, Sparkles, User } from 'lucide-react';
+import { House, Mail, Moon, Settings, Sun, User } from 'lucide-react';
 import type { Locale } from '@/dictionaries';
 import styles from './footer.module.css';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useRouter } from 'next/navigation';
+
+const subButtons = [
+	{ key: 'sub1', title: '邮件', Icon: Mail },
+	{ key: 'sub2', title: '用户', Icon: User },
+	{ key: 'sub3', title: '设置', Icon: House },
+	{ key: 'sub4', title: '昼夜切换' }
+] as const;
+
+type SubKey = (typeof subButtons)[number]['key'];
+const THEME_STORAGE_KEY = 'theme';
+
+function readThemeIsDark() {
+	if (typeof window === 'undefined') return false;
+	const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
+	if (saved === 'dark') return true;
+	if (saved === 'light') return false;
+	return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
 
 export default function Footer({ locale }: { locale: Locale }) {
-	void locale; // locale 目前未用于页脚，但保留了 props 以便后续做本地化
+	const router = useRouter();
+	const isDark = useSyncExternalStore(
+		(onStoreChange) => {
+			const media = window.matchMedia('(prefers-color-scheme: dark)');
+			const handleSystemThemeChange = () => {
+				if (!window.localStorage.getItem(THEME_STORAGE_KEY)) onStoreChange();
+			};
+			window.addEventListener('storage', onStoreChange);
+			window.addEventListener('themechange', onStoreChange);
+			media.addEventListener('change', handleSystemThemeChange);
+			return () => {
+				window.removeEventListener('storage', onStoreChange);
+				window.removeEventListener('themechange', onStoreChange);
+				media.removeEventListener('change', handleSystemThemeChange);
+			};
+		},
+		readThemeIsDark,
+		() => false
+	);
 
 	const [animState, setAnimState] = useState<'closed' | 'opening' | 'closing'>('closed');
 	const [spinNonce, setSpinNonce] = useState(0);
@@ -13,14 +50,25 @@ export default function Footer({ locale }: { locale: Locale }) {
 	const animStartAtRef = useRef<number | null>(null);
 	const actionWrapRef = useRef<HTMLDivElement | null>(null);
 
-	const subRefs = useRef<Record<'sub1' | 'sub2' | 'sub3' | 'sub4', HTMLButtonElement | null>>({
+	const subRefs = useRef<Record<SubKey, HTMLButtonElement | null>>({
 		sub1: null,
 		sub2: null,
 		sub3: null,
 		sub4: null
 	});
 
-	const subKeys = ['sub1', 'sub2', 'sub3', 'sub4'] as const;
+	const subKeys = subButtons.map((item) => item.key);
+
+	useEffect(() => {
+		document.documentElement.classList.toggle('dark', isDark);
+	}, [isDark]);
+
+	function toggleTheme() {
+		const nextIsDark = !isDark;
+		document.documentElement.classList.toggle('dark', nextIsDark);
+		window.localStorage.setItem(THEME_STORAGE_KEY, nextIsDark ? 'dark' : 'light');
+		window.dispatchEvent(new Event('themechange'));
+	}
 
 	function setFromVarsFromCurrent(el: HTMLElement) {
 		const cs = getComputedStyle(el);
@@ -133,46 +181,31 @@ export default function Footer({ locale }: { locale: Locale }) {
 					</span>
 				</button>
 
-				<button
-					type='button'
-					className={`${styles.subBtn} ${styles.sub1}`}
-					title='邮件'
-					ref={(el) => {
-						subRefs.current.sub1 = el;
-					}}
-				>
-					<Mail size={16} strokeWidth={3} />
-				</button>
-				<button
-					type='button'
-					className={`${styles.subBtn} ${styles.sub2}`}
-					title='用户'
-					ref={(el) => {
-						subRefs.current.sub2 = el;
-					}}
-				>
-					<User size={16} strokeWidth={3} />
-				</button>
-				<button
-					type='button'
-					className={`${styles.subBtn} ${styles.sub3}`}
-					title='设置'
-					ref={(el) => {
-						subRefs.current.sub3 = el;
-					}}
-				>
-					<Settings size={16} strokeWidth={3} />
-				</button>
-				<button
-					type='button'
-					className={`${styles.subBtn} ${styles.sub4}`}
-					title='更多'
-					ref={(el) => {
-						subRefs.current.sub4 = el;
-					}}
-				>
-					<Sparkles size={16} strokeWidth={3} />
-				</button>
+				{subButtons.map((btn) => {
+					const { key, title } = btn;
+					const onClick =
+						key === 'sub4'
+							? toggleTheme
+							: key === 'sub3'
+								? () => router.push(`/${locale}/profile`)
+								: undefined;
+					const Icon = key === 'sub4' ? (isDark ? Moon : Sun) : 'Icon' in btn ? btn.Icon : User;
+
+					return (
+						<button
+							key={key}
+							type='button'
+							className={`${styles.subBtn} ${styles[key]}`}
+							aria-label={title}
+							onClick={onClick}
+							ref={(el) => {
+								subRefs.current[key] = el;
+							}}
+						>
+							<Icon size={16} strokeWidth={3} />
+						</button>
+					);
+				})}
 			</div>
 		</footer>
 	);

@@ -13,6 +13,12 @@ export default async function ProfilePage({ params }: PageProps) {
 			<p>
 				<strong>页面标题:</strong> {dictionary.profile.title}
 			</p>
+			<p>
+				京ICP备1234567890号-999
+			</p>
+			<p>
+				京公网安备 110101123456789号
+			</p>
 		</div>
 	);
 }
