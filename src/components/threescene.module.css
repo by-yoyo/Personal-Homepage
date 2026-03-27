@@ -1,0 +1,3 @@
+.sceneBackdrop {
+	background-image: var(--layout-random-bg-url, url('https://t.alcy.cc/ysz/'));
+}

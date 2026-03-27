@@ -1,13 +1,14 @@
 'use client';
-import { House, Mail, Moon, Settings, Sun, User } from 'lucide-react';
+import { Ellipsis, House, Moon, Repeat, Settings, Sun, User } from 'lucide-react';
 import type { Locale } from '@/dictionaries';
 import styles from './footer.module.css';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
+import { BACKGROUND_REFRESH_EVENT, BACKGROUND_TOGGLE_EVENT } from './ui-state';
 
 const subButtons = [
-	{ key: 'sub1', title: '邮件', Icon: Mail },
-	{ key: 'sub2', title: '用户', Icon: User },
+	{ key: 'sub1', Icon: Ellipsis },
+	{ key: 'sub2', title: '用户', Icon: Repeat },
 	{ key: 'sub3', title: '设置', Icon: House },
 	{ key: 'sub4', title: '昼夜切换' }
 ] as const;
@@ -67,6 +68,7 @@ export default function Footer({ locale }: { locale: Locale }) {
 		const nextIsDark = !isDark;
 		document.documentElement.classList.toggle('dark', nextIsDark);
 		window.localStorage.setItem(THEME_STORAGE_KEY, nextIsDark ? 'dark' : 'light');
+		document.cookie = `theme=${nextIsDark ? 'dark' : 'light'}; path=/; max-age=31536000; samesite=lax`;
 		window.dispatchEvent(new Event('themechange'));
 	}
 
@@ -182,13 +184,18 @@ export default function Footer({ locale }: { locale: Locale }) {
 				</button>
 
 				{subButtons.map((btn) => {
-					const { key, title } = btn;
+					const { key } = btn;
 					const onClick =
-						key === 'sub4'
+						key === 'sub1'
+							? () => window.dispatchEvent(new Event(BACKGROUND_REFRESH_EVENT))
+						: key === 'sub2'
+							? () => window.dispatchEvent(new Event(BACKGROUND_TOGGLE_EVENT))
+							: key === 'sub4'
 							? toggleTheme
 							: key === 'sub3'
 								? () => router.push(`/${locale}/profile`)
 								: undefined;
+					const ariaLabel = 'title' in btn ? btn.title : '更多功能';
 					const Icon = key === 'sub4' ? (isDark ? Moon : Sun) : 'Icon' in btn ? btn.Icon : User;
 
 					return (
@@ -196,7 +203,7 @@ export default function Footer({ locale }: { locale: Locale }) {
 							key={key}
 							type='button'
 							className={`${styles.subBtn} ${styles[key]}`}
-							aria-label={title}
+							aria-label={ariaLabel}
 							onClick={onClick}
 							ref={(el) => {
 								subRefs.current[key] = el;

@@ -16,6 +16,19 @@
 }
 
 .layout-bg {
-    background-image: url("https://img.aur.fan/file/yoyo/img/bg-d/1770887575567_d-1.webp");
+    background-image: var(--layout-random-bg-url, url("https://t.alcy.cc/ysz"));
+}
+
+.layout-bg-fade {
+    animation: layout-bg-fade-in 700ms ease;
+}
+
+@keyframes layout-bg-fade-in {
+    from {
+        opacity: 0.15;
+    }
+    to {
+        opacity: 1;
+    }
 }
 

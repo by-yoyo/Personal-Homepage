@@ -1,9 +1,11 @@
 import React from 'react';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { cookies } from 'next/headers';
 import './globals.css';
 import Navbar from './navbar';
 import Footer from './footer';
-//import ThreeScene from '@/components/threescene';
+import BackgroundLayer from './background-layer';
+import { BACKGROUND_MODE_IMAGE, BACKGROUND_MODE_SCENE } from './ui-state';
 import {
 	defaultLocale,
 	getDictionary,
@@ -21,23 +23,6 @@ const geistMono = Geist_Mono({
 	subsets: ['latin'],
 });
 
-const themeInitScript = `
-(() => {
-  try {
-    const saved = localStorage.getItem('theme');
-    const isDark = saved
-      ? saved === 'dark'
-      : window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.classList.toggle('dark', isDark);
-  } catch {
-    document.documentElement.classList.toggle(
-      'dark',
-      window.matchMedia('(prefers-color-scheme: dark)').matches
-    );
-  }
-})();
-`;
-
 export default async function RootLayout({
 	children,
 	params,
@@ -48,12 +33,15 @@ export default async function RootLayout({
 	const { language } = await params;
 	const locale: Locale = isValidLocale(language) ? language : defaultLocale;
 	const dictionary = await getDictionary(locale);
+	const cookieStore = await cookies();
+	const theme = cookieStore.get('theme')?.value;
+	const backgroundMode = cookieStore.get('background-mode')?.value;
+	const htmlClassName = theme === 'dark' ? 'dark' : undefined;
+	const initialBackgroundMode =
+		backgroundMode === BACKGROUND_MODE_IMAGE ? BACKGROUND_MODE_IMAGE : BACKGROUND_MODE_SCENE;
 
 	return (
-		<html lang={locale} suppressHydrationWarning>
-			<head>
-				<script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-			</head>
+		<html lang={locale} suppressHydrationWarning className={htmlClassName}>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col relative`}>
 				{/* 导航栏 */}
@@ -71,14 +59,7 @@ export default async function RootLayout({
 				<div className='relative z-10 flex-1 pt-[66px] pb-[90px]'>
 					{children}
 				</div>
-				{/* 背景 */}
-				<div className='absolute inset-0 -z-10 pointer-events-none bg-cover bg-center bg-no-repeat layout-bg' />
-				{/* 3D 场景 */}
-				{/*
-				<div className='absolute inset-0 -z-10 pointer-events-none'>
-					<ThreeScene className='h-full min-h-screen' />
-				</div>
-				*/}
+				<BackgroundLayer initialMode={initialBackgroundMode} />
 				{/* 页脚 */}
 				<Footer locale={locale} />
 			</body>

@@ -18,10 +18,8 @@ import React, {
 } from 'react';
 import type * as THREE from 'three';
 import { cn } from '@/lib/utils';
+import styles from './threescene.module.css';
 
-/** 3D 加载中、WebGL 不可用或降级时使用的静态背景 */
-const SCENE_BACKDROP_URL =
-	'https://img.aur.fan/file/yoyo/img/bg-n/1770887585969_n-1.webp';
 // 3D 场景资源（当前使用的为外链固定资源）
 const FIRST_GLTF_MODEL_URL =
 	'https://files-s3.aur.fan/modules/black-hole.glb';
@@ -70,6 +68,37 @@ type CanvasProps = ComponentProps<typeof Canvas>;
 
 type Vec3 = [number, number, number];
 
+function disposeMaterial(material?: THREE.Material) {
+	if (!material) return;
+	const mat = material as THREE.Material & Record<string, unknown>;
+	const textureKeys = [
+		'map',
+		'lightMap',
+		'aoMap',
+		'emissiveMap',
+		'bumpMap',
+		'normalMap',
+		'displacementMap',
+		'roughnessMap',
+		'metalnessMap',
+		'alphaMap',
+		'envMap',
+	];
+	for (const key of textureKeys) {
+		const texture = mat[key] as THREE.Texture | undefined;
+		texture?.dispose?.();
+	}
+	material.dispose();
+}
+
+export function preloadThreeSceneAssets(
+	firstModelUrl: string = FIRST_GLTF_MODEL_URL,
+	secondModelUrl: string = SECOND_GLTF_MODEL_URL,
+) {
+	useGLTF.preload(firstModelUrl);
+	useGLTF.preload(secondModelUrl);
+}
+
 function isWebGLAvailable(): boolean {
 	if (typeof window === 'undefined') return true;
 	try {
@@ -88,88 +117,12 @@ function FallbackBackdrop({ className }: { className?: string }) {
 		<div
 			className={cn(
 				'pointer-events-none bg-cover bg-center bg-no-repeat',
+				styles.sceneBackdrop,
 				className,
 			)}
-			style={{ backgroundImage: `url(${SCENE_BACKDROP_URL})` }}
 			aria-hidden
 		/>
 	);
-}
-
-function disposeMaterial(material: THREE.Material) {
-	// TS 中对 Material 类型索引不完整，因此采用“尽力而为”的 any 强转。
-	const mat = material as unknown as Record<string, unknown>;
-	const textureKeys = [
-		'map',
-		'alphaMap',
-		'aoMap',
-		'bumpMap',
-		'displacementMap',
-		'emissiveMap',
-		'envMap',
-		'lightMap',
-		'metalnessMap',
-		'normalMap',
-		'roughnessMap',
-		'specularMap',
-		'sheenColorMap',
-		'clearcoatMap',
-		'clearcoatNormalMap',
-		'clearcoatRoughnessMap',
-		'transmissionMap',
-		'thicknessMap',
-		'attenuationMap',
-		'gradientMap',
-	] as const;
-
-	for (const key of textureKeys) {
-		const value = mat[key];
-		if (value && typeof value === 'object' && 'dispose' in value) {
-			try {
-				(value as { dispose: () => void }).dispose();
-			} catch {
-				// 尽力释放；共享资源可能已经被释放过。
-			}
-		}
-	}
-
-	try {
-		material.dispose();
-	} catch {
-		// 忽略
-	}
-}
-
-function disposeThreeObject3D(root: THREE.Object3D) {
-	root.traverse((obj) => {
-		const meshLike = obj as THREE.Mesh;
-
-		// 几何体释放
-		if ('geometry' in meshLike && meshLike.geometry) {
-			try {
-				meshLike.geometry.dispose();
-			} catch {
-				// 忽略
-			}
-		}
-
-		// 材质释放（单个或数组）
-		const maybeMat = (obj as unknown as { material?: unknown }).material;
-		if (!maybeMat) return;
-
-		if (Array.isArray(maybeMat)) {
-			for (const m of maybeMat) {
-				if (m && typeof m === 'object' && 'dispose' in m) {
-					disposeMaterial(m as THREE.Material);
-				}
-			}
-			return;
-		}
-
-		if (maybeMat && typeof maybeMat === 'object' && 'dispose' in maybeMat) {
-			disposeMaterial(maybeMat as THREE.Material);
-		}
-	});
 }
 
 class SceneErrorBoundary extends Component<
@@ -324,26 +277,8 @@ function Model({
 			} catch {
 				// 忽略
 			}
-
-			// 释放已加载的 GLTF 资源（尽力而为）。
-			try {
-				disposeThreeObject3D(sceneClone);
-			} catch {
-				// 忽略
-			}
-
-			// 从 drei 的全局缓存中移除，确保已释放对象可以安全回收。
-			try {
-				(
-					useGLTF as unknown as {
-						clear: (path: string) => void;
-					}
-				).clear(modelUrl);
-			} catch {
-				// 忽略
-			}
 		};
-	}, [actions, sceneClone, modelUrl]);
+	}, [actions]);
 
 	return (
 		<group
@@ -461,6 +396,8 @@ export default function ThreeScene({
 	const [sceneReady, setSceneReady] = useState(false);
 	const [firstModelLoaded, setFirstModelLoaded] = useState(false);
 	const [viewportTier, setViewportTier] = useState<ViewportTier>('default');
+	const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+	const sceneRef = useRef<THREE.Scene | null>(null);
 
 	useEffect(() => {
 		if (typeof window === 'undefined') return;
@@ -592,13 +529,51 @@ export default function ThreeScene({
 		() => setFirstModelLoaded(true),
 		[],
 	);
+	const handleCanvasCreated = useCallback((state: {
+		gl: THREE.WebGLRenderer;
+		scene: THREE.Scene;
+	}) => {
+		rendererRef.current = state.gl;
+		sceneRef.current = state.scene;
+	}, []);
 
 	// 仅在客户端预加载模型，提升首屏进入时的加载速度
 	useEffect(() => {
 		if (typeof window === 'undefined') return;
-		useGLTF.preload(firstModelUrl);
-		useGLTF.preload(secondModelUrl);
+		preloadThreeSceneAssets(firstModelUrl, secondModelUrl);
 	}, [firstModelUrl, secondModelUrl]);
+
+	// 卸载 ThreeScene（例如切回图片模式）时主动释放 GPU 与模型缓存。
+	useEffect(() => {
+		return () => {
+			const scene = sceneRef.current;
+			if (scene) {
+				scene.traverse((object) => {
+					const mesh = object as THREE.Mesh & {
+						geometry?: THREE.BufferGeometry;
+						material?: THREE.Material | THREE.Material[];
+					};
+					mesh.geometry?.dispose?.();
+					if (Array.isArray(mesh.material)) {
+						for (const material of mesh.material) disposeMaterial(material);
+					} else {
+						disposeMaterial(mesh.material);
+					}
+				});
+			}
+			const renderer = rendererRef.current;
+			if (renderer) {
+				try {
+					renderer.dispose();
+					renderer.forceContextLoss?.();
+				} catch {
+					// ignore
+				}
+			}
+			sceneRef.current = null;
+			rendererRef.current = null;
+		};
+	}, []);
 
 	if (!webglOk) {
 		return (
@@ -623,6 +598,7 @@ export default function ThreeScene({
 					<FallbackBackdrop className="absolute inset-0 z-10 h-full min-h-[inherit] w-full" />
 				}>
 				<Canvas
+					onCreated={handleCanvasCreated}
 					className={cn(
 						'absolute inset-0 z-1 h-full w-full touch-none transition-opacity duration-700 ease-out',
 						sceneReady ? 'opacity-100' : 'opacity-0',
