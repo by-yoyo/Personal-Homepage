@@ -18,6 +18,10 @@ export default function BackgroundLayer({
 }: {
 	initialMode: BackgroundMode;
 }) {
+	const wrapperClassName = `-z-10 pointer-events-none ${styles.layoutBgStack}`;
+	const imgBaseClassName = `${styles.layoutBgImg} ${styles.layoutBgImgBase}`;
+	const imgOverlayClassName = `${styles.layoutBgImg} ${styles.layoutBgImgOverlay}`;
+
 	const [showScene, setShowScene] = useState(
 		initialMode === BACKGROUND_MODE_SCENE,
 	);
@@ -30,6 +34,17 @@ export default function BackgroundLayer({
 	const crossfadeTimerRef = useRef<number | null>(null);
 	// base/overlay 交叉淡入淡出结束后的延迟时间（CSS 动画时长的配套值）
 	const CROSSFADE_END_DELAY_MS = 1350;
+
+	const clearCrossfadeTimer = useCallback(() => {
+		if (!crossfadeTimerRef.current) return;
+		window.clearTimeout(crossfadeTimerRef.current);
+		crossfadeTimerRef.current = null;
+	}, []);
+
+	const resetCrossfading = useCallback(() => {
+		setCrossfading(false);
+		clearCrossfadeTimer();
+	}, [clearCrossfadeTimer]);
 
 	const setBackgroundVar = useCallback((name: string, value: string) => {
 		document.documentElement.style.setProperty(name, value);
@@ -96,11 +111,7 @@ export default function BackgroundLayer({
 				return false;
 			});
 
-			setCrossfading(false);
-			if (crossfadeTimerRef.current) {
-				window.clearTimeout(crossfadeTimerRef.current);
-				crossfadeTimerRef.current = null;
-			}
+			resetCrossfading();
 		};
 		const handleRefresh = () => {
 			const now = Date.now();
@@ -114,21 +125,18 @@ export default function BackgroundLayer({
 			window.removeEventListener(BACKGROUND_TOGGLE_EVENT, handleToggle);
 			window.removeEventListener(BACKGROUND_REFRESH_EVENT, handleRefresh);
 		};
-	}, [refreshRandomBackground]);
+	}, [refreshRandomBackground, resetCrossfading]);
 
 	useEffect(() => {
 		return () => {
-			if (crossfadeTimerRef.current) {
-				window.clearTimeout(crossfadeTimerRef.current);
-				crossfadeTimerRef.current = null;
-			}
+			clearCrossfadeTimer();
 		};
-	}, []);
+	}, [clearCrossfadeTimer]);
 
 	if (showScene) {
 		return (
 			// Three.js 场景同样作为“背景层”：不参与布局流、不抢指针事件、位于底层。
-			<div className={`-z-10 pointer-events-none ${styles.layoutBgStack}`}>
+			<div className={wrapperClassName}>
 				<ThreeScene className='h-full min-h-screen' />
 			</div>
 		);
@@ -136,20 +144,20 @@ export default function BackgroundLayer({
 
 	return (
 		<div
-			className={`-z-10 pointer-events-none ${styles.layoutBgStack}`}
+			className={wrapperClassName}
 			// 交叉淡入淡出开关：让 CSS module 在 base/overlay 间切换 opacity/filter。
 			data-crossfading={crossfading ? 'true' : 'false'}
 		>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img
-				className={`${styles.layoutBgImg} ${styles.layoutBgImgBase}`}
+				className={imgBaseClassName}
 				src={baseSrc}
 				alt=''
 				aria-hidden
 			/>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img
-				className={`${styles.layoutBgImg} ${styles.layoutBgImgOverlay}`}
+				className={imgOverlayClassName}
 				src={overlaySrc}
 				alt=''
 				aria-hidden

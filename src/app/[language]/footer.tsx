@@ -89,6 +89,37 @@ export default function Footer({ locale }: { locale: Locale }) {
 		window.dispatchEvent(new Event('themechange'));
 	}
 
+	/**
+	 * Background 相关按钮触发的“冷却禁用态”逻辑抽取，避免 sub1/sub2 重复代码。
+	 */
+	function startBackgroundCooldown({
+		isCoolingDown,
+		setCoolingDown,
+		timerRef,
+		cooldownMs,
+		onStart
+	}: {
+		isCoolingDown: boolean;
+		setCoolingDown: (v: boolean) => void;
+		timerRef: { current: number | null };
+		cooldownMs: number;
+		onStart: () => void;
+	}) {
+		if (isCoolingDown) return;
+		setCoolingDown(true);
+		onStart();
+
+		if (timerRef.current) {
+			window.clearTimeout(timerRef.current);
+			timerRef.current = null;
+		}
+
+		timerRef.current = window.setTimeout(() => {
+			setCoolingDown(false);
+			timerRef.current = null;
+		}, cooldownMs);
+	}
+
 	function setFromVarsFromCurrent(el: HTMLElement) {
 		const cs = getComputedStyle(el);
 		const transform = cs.transform;
@@ -207,36 +238,26 @@ export default function Footer({ locale }: { locale: Locale }) {
 					switch (key) {
 						case 'sub1':
 							onClick = () => {
-								if (bgRefreshCoolingDown) return;
-								setBgRefreshCoolingDown(true);
 								// 触发 BackgroundLayer 的随机背景刷新（由 background-layer 监听该事件）
-								window.dispatchEvent(new Event(BACKGROUND_REFRESH_EVENT));
-
-								if (bgRefreshCooldownTimerRef.current) {
-									window.clearTimeout(bgRefreshCooldownTimerRef.current);
-									bgRefreshCooldownTimerRef.current = null;
-								}
-								bgRefreshCooldownTimerRef.current = window.setTimeout(() => {
-									setBgRefreshCoolingDown(false);
-									bgRefreshCooldownTimerRef.current = null;
-								}, 2000);
+								startBackgroundCooldown({
+									isCoolingDown: bgRefreshCoolingDown,
+									setCoolingDown: setBgRefreshCoolingDown,
+									timerRef: bgRefreshCooldownTimerRef,
+									cooldownMs: 2000,
+									onStart: () => window.dispatchEvent(new Event(BACKGROUND_REFRESH_EVENT)),
+								});
 							};
 							break;
 						case 'sub2':
 							onClick = () => {
-								if (bgToggleCoolingDown) return;
-								setBgToggleCoolingDown(true);
 								// 触发 BackgroundLayer 的背景模式切换（由 background-layer 监听该事件）
-								window.dispatchEvent(new Event(BACKGROUND_TOGGLE_EVENT));
-
-								if (bgToggleCooldownTimerRef.current) {
-									window.clearTimeout(bgToggleCooldownTimerRef.current);
-									bgToggleCooldownTimerRef.current = null;
-								}
-								bgToggleCooldownTimerRef.current = window.setTimeout(() => {
-									setBgToggleCoolingDown(false);
-									bgToggleCooldownTimerRef.current = null;
-								}, 5000);
+								startBackgroundCooldown({
+									isCoolingDown: bgToggleCoolingDown,
+									setCoolingDown: setBgToggleCoolingDown,
+									timerRef: bgToggleCooldownTimerRef,
+									cooldownMs: 5000,
+									onStart: () => window.dispatchEvent(new Event(BACKGROUND_TOGGLE_EVENT)),
+								});
 							};
 							break;
 						case 'sub3':
