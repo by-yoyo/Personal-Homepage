@@ -33,3 +33,51 @@
     }
 }
 
+.layout-bg-stack {
+    position: absolute;
+    inset: 0;
+}
+
+.layout-bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+
+    /* 默认不做过渡：避免交叉结束后状态切回导致“第二次淡入/淡出”。 */
+    transition:
+        opacity 0ms linear,
+        filter 0ms linear;
+    will-change: opacity, filter;
+}
+
+.layout-bg-stack[data-crossfading="true"] .layout-bg-img {
+    transition:
+        opacity 1300ms cubic-bezier(0.22, 1, 0.36, 1),
+        filter 1300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.layout-bg-img-base {
+    z-index: 2;
+    opacity: 1;
+    filter: blur(0px) brightness(1);
+}
+
+.layout-bg-img-overlay {
+    z-index: 1;
+    opacity: 0;
+    filter: blur(2px) brightness(0.97);
+}
+
+.layout-bg-stack[data-crossfading="true"] .layout-bg-img-base {
+    opacity: 0;
+    filter: blur(2px) brightness(0.97);
+}
+
+.layout-bg-stack[data-crossfading="true"] .layout-bg-img-overlay {
+    opacity: 1;
+    filter: blur(0px) brightness(1);
+}
+

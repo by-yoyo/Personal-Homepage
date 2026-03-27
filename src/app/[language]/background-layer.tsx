@@ -20,23 +20,16 @@ export default function BackgroundLayer({
 	const [showScene, setShowScene] = useState(
 		initialMode === BACKGROUND_MODE_SCENE,
 	);
-	const imageLayerRef = useRef<HTMLDivElement | null>(null);
+	const [crossfading, setCrossfading] = useState(false);
+	const [baseSrc, setBaseSrc] = useState(BACKGROUND_RANDOM_IMAGE_API);
+	const [overlaySrc, setOverlaySrc] = useState(BACKGROUND_RANDOM_IMAGE_API);
 	const refreshSeqRef = useRef(0);
+	const crossfadeTimerRef = useRef<number | null>(null);
+	const CROSSFADE_DURATION_MS = 1300;
+	const CROSSFADE_END_DELAY_MS = 1350;
 
 	const setBackgroundVar = useCallback((name: string, value: string) => {
 		document.documentElement.style.setProperty(name, value);
-	}, []);
-
-	const replayFadeAnimation = useCallback(() => {
-		const el = imageLayerRef.current;
-		if (!el) return;
-		el.classList.remove('layout-bg-fade');
-		// 双 RAF：确保每次都重播动画，而不是仅第一次生效。
-		window.requestAnimationFrame(() => {
-			window.requestAnimationFrame(() => {
-				el.classList.add('layout-bg-fade');
-			});
-		});
 	}, []);
 
 	const refreshRandomBackground = useCallback(() => {
@@ -47,7 +40,23 @@ export default function BackgroundLayer({
 		preload.onload = () => {
 			if (seq !== refreshSeqRef.current) return;
 			setBackgroundVar('--layout-random-bg-url', `url("${url}")`);
-			replayFadeAnimation();
+
+			// 交叉淡入淡出：
+			// base 1->0, overlay 0->1
+			// 然后把 base 更新为新图，关闭交叉态，方便下一次再次播放。
+			setOverlaySrc(url);
+			setCrossfading(true);
+
+			if (crossfadeTimerRef.current) {
+				window.clearTimeout(crossfadeTimerRef.current);
+				crossfadeTimerRef.current = null;
+			}
+
+			crossfadeTimerRef.current = window.setTimeout(() => {
+				setBaseSrc(url);
+				setCrossfading(false);
+				crossfadeTimerRef.current = null;
+			}, CROSSFADE_END_DELAY_MS);
 		};
 
 		preload.onerror = () => {
@@ -55,10 +64,13 @@ export default function BackgroundLayer({
 		};
 
 		preload.src = url;
-	}, [replayFadeAnimation, setBackgroundVar]);
+	}, [setBackgroundVar]);
 
 	useEffect(() => {
-		setBackgroundVar('--layout-random-bg-url', `url("${BACKGROUND_RANDOM_IMAGE_API}")`);
+		setBackgroundVar(
+			'--layout-random-bg-url',
+			`url("${BACKGROUND_RANDOM_IMAGE_API}")`
+		);
 	}, [setBackgroundVar]);
 
 	useEffect(() => {
@@ -76,6 +88,12 @@ export default function BackgroundLayer({
 				}
 				return false;
 			});
+
+			setCrossfading(false);
+			if (crossfadeTimerRef.current) {
+				window.clearTimeout(crossfadeTimerRef.current);
+				crossfadeTimerRef.current = null;
+			}
 		};
 		const handleRefresh = () => refreshRandomBackground();
 		window.addEventListener(BACKGROUND_TOGGLE_EVENT, handleToggle);
@@ -87,13 +105,12 @@ export default function BackgroundLayer({
 	}, [refreshRandomBackground]);
 
 	useEffect(() => {
-		const el = imageLayerRef.current;
-		if (!el) return;
-		const handleAnimationEnd = () => {
-			el.classList.remove('layout-bg-fade');
+		return () => {
+			if (crossfadeTimerRef.current) {
+				window.clearTimeout(crossfadeTimerRef.current);
+				crossfadeTimerRef.current = null;
+			}
 		};
-		el.addEventListener('animationend', handleAnimationEnd);
-		return () => el.removeEventListener('animationend', handleAnimationEnd);
 	}, []);
 
 	if (showScene) {
@@ -106,8 +123,23 @@ export default function BackgroundLayer({
 
 	return (
 		<div
-			ref={imageLayerRef}
-			className='absolute inset-0 -z-10 pointer-events-none bg-cover bg-center bg-no-repeat layout-bg'
-		/>
+			className='absolute inset-0 -z-10 pointer-events-none layout-bg-stack'
+			data-crossfading={crossfading ? 'true' : 'false'}
+		>
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img
+				className='layout-bg-img layout-bg-img-base'
+				src={baseSrc}
+				alt=''
+				aria-hidden
+			/>
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img
+				className='layout-bg-img layout-bg-img-overlay'
+				src={overlaySrc}
+				alt=''
+				aria-hidden
+			/>
+		</div>
 	);
 }
