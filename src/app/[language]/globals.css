@@ -7,8 +7,9 @@
 @import "./add-globals.css";
 
 /*
-* 请不要随意修改这个css文件，除非你非常确定你在做什么。
-*/
+ * 这个文件是 Tailwind / Shadcn 的基础层入口（主要是 @import + @custom-variant/@theme）。
+ * 除非你明确了解背景层相关全局变量/层级，否则不要改动。
+ */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

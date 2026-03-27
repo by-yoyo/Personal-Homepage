@@ -59,6 +59,7 @@ export default async function RootLayout({
 				<div className='relative z-10 flex-1 pt-[66px] pb-[90px]'>
 					{children}
 				</div>
+				{/* 背景层（图片/Three 场景）：位于底层，不参与布局流；初始模式由 cookie 决定 */}
 				<BackgroundLayer initialMode={initialBackgroundMode} />
 				{/* 页脚 */}
 				<Footer locale={locale} />

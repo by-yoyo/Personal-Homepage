@@ -209,6 +209,7 @@ export default function Footer({ locale }: { locale: Locale }) {
 							onClick = () => {
 								if (bgRefreshCoolingDown) return;
 								setBgRefreshCoolingDown(true);
+								// 触发 BackgroundLayer 的随机背景刷新（由 background-layer 监听该事件）
 								window.dispatchEvent(new Event(BACKGROUND_REFRESH_EVENT));
 
 								if (bgRefreshCooldownTimerRef.current) {
@@ -225,6 +226,7 @@ export default function Footer({ locale }: { locale: Locale }) {
 							onClick = () => {
 								if (bgToggleCoolingDown) return;
 								setBgToggleCoolingDown(true);
+								// 触发 BackgroundLayer 的背景模式切换（由 background-layer 监听该事件）
 								window.dispatchEvent(new Event(BACKGROUND_TOGGLE_EVENT));
 
 								if (bgToggleCooldownTimerRef.current) {
@@ -275,6 +277,7 @@ export default function Footer({ locale }: { locale: Locale }) {
 										: false
 							}
 							data-bg-refresh={key === 'sub1' ? 'true' : undefined}
+							// 与 `add-globals.css` 中的按钮 disabled 样式对应（冷却禁用态）
 							data-bg-toggle={key === 'sub2' ? 'true' : undefined}
 							ref={(el) => {
 								subRefs.current[key] = el;

@@ -90,7 +90,7 @@
 	cursor: pointer;
 	pointer-events: none;
 	opacity: 0;
-	/* 收起动画打断时，footer.tsx 会把“当前位置 transform/opacity”写到这些变量 */
+	/* 收起动画打断时：footer.tsx 会把“当前位置 transform/opacity”等写入这些 CSS 变量 */
 	--from-x: -15px;
 	--from-y: -15px;
 	--from-scale: 0.45;

@@ -57,7 +57,7 @@ export default function Navbar({ language, labels }: NavbarProps) {
 				</div>
 			</nav>
 
-			{/* 导航栏下方中间装饰：梯形（上宽下窄），点击后触发纯 CSS 收起动画 */}
+			{/* 导航栏下方中间装饰：梯形（上宽下窄），与 checkbox+label 组合触发纯 CSS 动画 */}
 			<label
 				htmlFor='nav-collapse-toggle'
 				className={styles.trapezoid}

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ThreeScene from '@/components/threescene';
+import styles from './background.module.css';
 import {
 	BACKGROUND_MODE_IMAGE,
 	BACKGROUND_MODE_SCENE,
@@ -27,6 +28,7 @@ export default function BackgroundLayer({
 	const refreshCooldownUntilRef = useRef(0);
 	const toggleCooldownUntilRef = useRef(0);
 	const crossfadeTimerRef = useRef<number | null>(null);
+	// base/overlay 交叉淡入淡出结束后的延迟时间（CSS 动画时长的配套值）
 	const CROSSFADE_END_DELAY_MS = 1350;
 
 	const setBackgroundVar = useCallback((name: string, value: string) => {
@@ -43,7 +45,7 @@ export default function BackgroundLayer({
 			setBackgroundVar('--layout-random-bg-url', `url("${url}")`);
 
 			// 交叉淡入淡出：
-			// base 1->0, overlay 0->1
+			// base 1->0, overlay 0->1（由 data-crossfading + CSS module 选择器控制）
 			// 然后把 base 更新为新图，关闭交叉态，方便下一次再次播放。
 			setOverlaySrc(url);
 			setCrossfading(true);
@@ -125,7 +127,8 @@ export default function BackgroundLayer({
 
 	if (showScene) {
 		return (
-			<div className='absolute inset-0 -z-10 pointer-events-none'>
+			// Three.js 场景同样作为“背景层”：不参与布局流、不抢指针事件、位于底层。
+			<div className={`-z-10 pointer-events-none ${styles.layoutBgStack}`}>
 				<ThreeScene className='h-full min-h-screen' />
 			</div>
 		);
@@ -133,19 +136,20 @@ export default function BackgroundLayer({
 
 	return (
 		<div
-			className='absolute inset-0 -z-10 pointer-events-none layout-bg-stack'
+			className={`-z-10 pointer-events-none ${styles.layoutBgStack}`}
+			// 交叉淡入淡出开关：让 CSS module 在 base/overlay 间切换 opacity/filter。
 			data-crossfading={crossfading ? 'true' : 'false'}
 		>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img
-				className='layout-bg-img layout-bg-img-base'
+				className={`${styles.layoutBgImg} ${styles.layoutBgImgBase}`}
 				src={baseSrc}
 				alt=''
 				aria-hidden
 			/>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img
-				className='layout-bg-img layout-bg-img-overlay'
+				className={`${styles.layoutBgImg} ${styles.layoutBgImgOverlay}`}
 				src={overlaySrc}
 				alt=''
 				aria-hidden
