@@ -19,7 +19,6 @@ export default function BackgroundLayer({
 }) {
 	const [showScene, setShowScene] = useState(initialMode === BACKGROUND_MODE_SCENE);
 	const imageLayerRef = useRef<HTMLDivElement | null>(null);
-	const showSceneRef = useRef(showScene);
 	const refreshSeqRef = useRef(0);
 	const setBackgroundVar = useCallback((name: string, value: string) => {
 		document.documentElement.style.setProperty(name, value);
@@ -61,10 +60,6 @@ export default function BackgroundLayer({
 	}, []);
 
 	useEffect(() => {
-		showSceneRef.current = showScene;
-	}, [showScene]);
-
-	useEffect(() => {
 		setBackgroundVar('--layout-random-bg-url', `url("${BACKGROUND_RANDOM_IMAGE_API}")`);
 	}, [setBackgroundVar]);
 
@@ -76,13 +71,14 @@ export default function BackgroundLayer({
 
 	useEffect(() => {
 		const handleToggle = () => {
-			const next = !showSceneRef.current;
 			// 切到 3D 时延后一帧挂载 Canvas，优先让按钮点击反馈先渲染。
-			if (next) {
-				window.requestAnimationFrame(() => setShowScene(true));
-				return;
-			}
-			setShowScene(false);
+			setShowScene((prev) => {
+				if (!prev) {
+					window.requestAnimationFrame(() => setShowScene(true));
+					return prev;
+				}
+				return false;
+			});
 		};
 		const handleRefresh = () => refreshRandomBackground();
 		window.addEventListener(BACKGROUND_TOGGLE_EVENT, handleToggle);

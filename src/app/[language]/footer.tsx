@@ -1,5 +1,5 @@
 'use client';
-import { Ellipsis, House, Moon, Repeat, Settings, Sun, User } from 'lucide-react';
+import { House, Image, Moon, Repeat, Settings, Sun } from 'lucide-react';
 import type { Locale } from '@/dictionaries';
 import styles from './footer.module.css';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
@@ -7,10 +7,10 @@ import { useRouter } from 'next/navigation';
 import { BACKGROUND_REFRESH_EVENT, BACKGROUND_TOGGLE_EVENT } from './ui-state';
 
 const subButtons = [
-	{ key: 'sub1', Icon: Ellipsis },
-	{ key: 'sub2', title: '用户', Icon: Repeat },
-	{ key: 'sub3', title: '设置', Icon: House },
-	{ key: 'sub4', title: '昼夜切换' }
+	{ key: 'sub1', Icon: Image },
+	{ key: 'sub2', Icon: Repeat },
+	{ key: 'sub3', Icon: House },
+	{ key: 'sub4' }
 ] as const;
 
 type SubKey = (typeof subButtons)[number]['key'];
@@ -185,18 +185,39 @@ export default function Footer({ locale }: { locale: Locale }) {
 
 				{subButtons.map((btn) => {
 					const { key } = btn;
-					const onClick =
+
+					let onClick: (() => void) | undefined;
+					switch (key) {
+						case 'sub1':
+							onClick = () =>
+								window.dispatchEvent(new Event(BACKGROUND_REFRESH_EVENT));
+							break;
+						case 'sub2':
+							onClick = () =>
+								window.dispatchEvent(new Event(BACKGROUND_TOGGLE_EVENT));
+							break;
+						case 'sub3':
+							onClick = () => router.push(`/${locale}/profile`);
+							break;
+						case 'sub4':
+							onClick = toggleTheme;
+							break;
+					}
+
+					const ariaLabel: string =
 						key === 'sub1'
-							? () => window.dispatchEvent(new Event(BACKGROUND_REFRESH_EVENT))
-						: key === 'sub2'
-							? () => window.dispatchEvent(new Event(BACKGROUND_TOGGLE_EVENT))
-							: key === 'sub4'
-							? toggleTheme
-							: key === 'sub3'
-								? () => router.push(`/${locale}/profile`)
-								: undefined;
-					const ariaLabel = 'title' in btn ? btn.title : '更多功能';
-					const Icon = key === 'sub4' ? (isDark ? Moon : Sun) : 'Icon' in btn ? btn.Icon : User;
+							? '更多功能'
+							: key === 'sub2'
+								? '用户'
+								: key === 'sub3'
+									? '设置'
+									: '昼夜切换';
+					const Icon =
+						key === 'sub4'
+							? isDark
+								? Moon
+								: Sun
+							: btn.Icon;
 
 					return (
 						<button
