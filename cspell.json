@@ -1,0 +1,18 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.git/**"
+  ],
+  "words": [
+    "crossfading",
+    "backgroundrefresh",
+    "navblog",
+    "navbrandTitle",
+    "backgroundtoggle"
+  ]
+}
