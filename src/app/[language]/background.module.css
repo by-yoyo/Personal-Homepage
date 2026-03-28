@@ -1,5 +1,6 @@
+/* fixed：相对视口定位，避免 body 随内容增高时 absolute + inset:0 把背景撑成整页高度 */
 .layoutBgStack {
-	position: absolute;
+	position: fixed;
 	inset: 0;
 }
 
