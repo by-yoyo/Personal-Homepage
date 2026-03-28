@@ -270,11 +270,11 @@ export default function Footer({ locale }: { locale: Locale }) {
 
 					const ariaLabel: string =
 						key === 'sub1'
-							? '更多功能'
+							? '换背景图片'
 							: key === 'sub2'
-								? '用户'
+								? '切换背景'
 								: key === 'sub3'
-									? '设置'
+									? '首页'
 									: '昼夜切换';
 					const Icon =
 						key === 'sub4'

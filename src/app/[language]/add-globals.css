@@ -1,26 +1,53 @@
+/**
+ * 附加全局样式（由 globals.css 引入）：
+ * - 导航 / 页脚浮动按钮 / Profile 卡片：共用「表面」色与文字色（--theme-*，与 html.dark 同步）
+ * - Footer 背景切换按钮的冷却禁用态
+ */
+
 :root {
-    --navbar-bg: rgba(255, 255, 255, 0.7);
-    --navbar-border: rgba(0, 0, 0, 0.1);
-    --navbar-bg-hover: rgba(255, 255, 255, 0.9);
-    --navbar-text: rgba(0, 0, 0, 0.9);
+	/* 表面：底色、描边、悬停（原 --navbar-* / --profile-card-bg|border 合并） */
+	--theme-surface-bg: rgba(255, 255, 255, 0.74);
+	--theme-surface-border: rgba(15, 23, 42, 0.105);
+	--theme-surface-bg-hover: rgba(255, 255, 255, 0.9);
+
+	/* 文字：主色、次要、弱（原 --navbar-text / --profile-card-name|meta|… 合并） */
+	--theme-text: rgba(15, 23, 42, 0.9);
+	--theme-text-muted: rgba(15, 23, 42, 0.62);
+	--theme-text-subtle: rgba(15, 23, 42, 0.48);
+	--theme-link: rgb(37, 99, 235);
+
+	--theme-avatar-border: rgba(15, 23, 42, 0.15);
+	--theme-avatar-placeholder-bg: rgba(0, 0, 0, 0.05);
+
+	--theme-blur-nav: 6px;
+	--theme-blur-footer: 5px;
+	/* Profile 四宫格：与导航同档略轻，避免内容区糊得太重 */
+	--theme-blur-card: 4px;
 }
 
 .dark {
-    --navbar-bg: rgba(0, 0, 0, 0.8);
-    --navbar-border: rgba(255, 255, 255, 0.1);
-    --navbar-bg-hover: rgba(0, 0, 0, 0.9);
-    --navbar-text: rgba(255, 255, 255, 0.9);
+	--theme-surface-bg: rgba(133, 150, 177, 0.18);
+	--theme-surface-border: rgba(133, 150, 177, 0.35);
+	--theme-surface-bg-hover: rgba(0, 0, 0, 0.9);
+
+	--theme-text: rgba(255, 255, 255, 0.92);
+	--theme-text-muted: rgba(255, 255, 255, 0.65);
+	--theme-text-subtle: rgba(255, 255, 255, 0.5);
+	--theme-link: rgba(160, 200, 255, 0.95);
+
+	--theme-avatar-border: rgba(133, 150, 177, 0.45);
+	--theme-avatar-placeholder-bg: rgba(255, 255, 255, 0.06);
 }
 
 /* 背景按钮（Footer）点击冷却禁用态（与 layout 相关的背景层样式已拆到 background.module.css） */
 button[data-bg-toggle="true"][disabled] {
-    opacity: 0.55;
-    cursor: not-allowed;
-    filter: grayscale(0.2);
+	opacity: 0.55;
+	cursor: not-allowed;
+	filter: grayscale(0.2);
 }
 
 button[data-bg-refresh="true"][disabled] {
-    opacity: 0.55;
-    cursor: not-allowed;
-    filter: grayscale(0.2);
+	opacity: 0.55;
+	cursor: not-allowed;
+	filter: grayscale(0.2);
 }

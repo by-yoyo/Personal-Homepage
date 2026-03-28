@@ -32,14 +32,18 @@ export async function generateMetadata({
 	};
 }
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
+	params,
 }: Readonly<LayoutProps>) {
+	const { language } = await params;
+	const locale: Locale = isValidLocale(language) ? language : defaultLocale;
+
 	return (
 		<div className={styles.profileLayout}>
 			<div className={styles.profileGrid}>
 				<div className={styles.leftColumn}>
-					<LeftTopCard />
+					<LeftTopCard locale={locale} />
 					<LeftBottomCard />
 				</div>
 				<div className={styles.rightColumn}>

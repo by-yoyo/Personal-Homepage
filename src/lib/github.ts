@@ -1,12 +1,42 @@
+/** GitHub REST；`fetchSite*` 用 {@link GITHUB_PROFILE_URL} 解析用户名。 */
+
 const GITHUB_API_BASE = "https://api.github.com";
 
-/** 本站 GitHub 个人主页 */
-export const GITHUB_PROFILE_URL = "https://github.com/by-yoyo" as const;
+/** Next.js Data Cache：3600s 重新验证 */
+const GITHUB_FETCH_REVALIDATE_SEC = 3600;
 
-/**
- * 从 GitHub 个人主页 URL 解析用户名，例如 `https://github.com/by-yoyo` → `by-yoyo`。
- * 也支持带子路径的链接（取第一段为用户名）。
- */
+const GITHUB_USER_REPOS_PER_PAGE_MAX = 100;
+const GITHUB_USER_EVENTS_PER_PAGE_MAX = 100;
+
+function devGithubWarn(...args: unknown[]) {
+  if (process.env.NODE_ENV === "development") console.warn("[github]", ...args);
+}
+
+function githubFetchInit(init?: RequestInit): RequestInit & { next: { revalidate: number } } {
+  const h = new Headers(init?.headers);
+  if (!h.has("Accept")) h.set("Accept", "application/vnd.github+json");
+  return {
+    ...init,
+    headers: h,
+    next: { revalidate: GITHUB_FETCH_REVALIDATE_SEC },
+  };
+}
+
+/** 失败或非数组返回空数组 */
+async function fetchGithubJsonArray(url: string, init?: RequestInit): Promise<unknown[]> {
+  const res = await fetch(url, githubFetchInit(init));
+  if (!res.ok) return [];
+  const json: unknown = await res.json();
+  return Array.isArray(json) ? json : [];
+}
+
+function num(x: unknown): number {
+  return typeof x === "number" ? x : Number(x ?? 0);
+}
+
+export const GITHUB_PROFILE_URL = "https://github.com/Wolffyhtl" as const;
+
+/** profile URL → 用户名，非法则 null */
 export function usernameFromGithubProfileUrl(profileUrl: string): string | null {
   let url: URL;
   try {
@@ -20,14 +50,12 @@ export function usernameFromGithubProfileUrl(profileUrl: string): string | null 
   }
   const first = url.pathname.split("/").filter(Boolean)[0];
   if (!first) return null;
-  // GitHub 用户名：字母数字与单段连字符，长度 1–39
   if (!/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(first)) {
     return null;
   }
   return first;
 }
 
-/** `GET /users/{username}` 响应中我们使用的公开字段（见 [Users API](https://docs.github.com/en/rest/users/users#get-a-user)） */
 export type GithubUserProfile = {
   avatar_url: string;
   name: string | null;
@@ -36,11 +64,16 @@ export type GithubUserProfile = {
   bio: string | null;
   public_repos: number;
   followers: number;
+  total_stargazers: number;
+  /** 仓库主语言按仓库数降序，仅名称 */
+  languages_ranked: string[];
   created_at: string;
   updated_at: string;
 };
 
-function pickGithubUserProfile(data: unknown): GithubUserProfile | null {
+type GithubUserProfileFields = Omit<GithubUserProfile, "total_stargazers" | "languages_ranked">;
+
+function pickGithubUserProfile(data: unknown): GithubUserProfileFields | null {
   if (typeof data !== "object" || data === null) return null;
   const o = data as Record<string, unknown>;
   return {
@@ -56,35 +89,42 @@ function pickGithubUserProfile(data: unknown): GithubUserProfile | null {
   };
 }
 
-/** 请求 `https://api.github.com/users/{username}` 并解析为 {@link GithubUserProfile}；失败时返回 `null`。 */
 export async function fetchGithubUserProfile(
   username: string,
   init?: RequestInit,
 ): Promise<GithubUserProfile | null> {
-  const res = await fetch(githubUserApiUrl(username), {
-    ...init,
-    headers: {
-      Accept: "application/vnd.github+json",
-      ...init?.headers,
-    },
-  });
-  if (!res.ok) return null;
-  const json: unknown = await res.json();
-  return pickGithubUserProfile(json);
+  try {
+    const res = await fetch(githubUserApiUrl(username), githubFetchInit(init));
+    if (!res.ok) {
+      devGithubWarn(`GET /users/${username} → ${res.status}`);
+      return null;
+    }
+    const json: unknown = await res.json();
+    const profile = pickGithubUserProfile(json);
+    if (!profile) return null;
+
+    try {
+      const agg = await aggregateUserPublicRepos(username, init);
+      return { ...profile, ...agg };
+    } catch (e) {
+      devGithubWarn("aggregate repos failed, profile without stars/languages", e);
+      return { ...profile, total_stargazers: 0, languages_ranked: [] };
+    }
+  } catch (e) {
+    devGithubWarn("fetchGithubUserProfile", e);
+    return null;
+  }
 }
 
-/** 使用 {@link GITHUB_PROFILE_URL} 对应的用户获取资料。 */
 export async function fetchSiteGithubUserProfile(init?: RequestInit): Promise<GithubUserProfile | null> {
   const username = usernameFromGithubProfileUrl(GITHUB_PROFILE_URL);
   return username ? fetchGithubUserProfile(username, init) : null;
 }
 
-/** `https://api.github.com/users/{username}` */
 export function githubUserApiUrl(username: string): string {
   return `${GITHUB_API_BASE}/users/${encodeURIComponent(username)}`;
 }
 
-/** `GET /users/{username}/repos` 响应中我们使用的仓库字段（见 [List repositories for a user](https://docs.github.com/en/rest/repos/repos#list-repositories-for-a-user)） */
 export type GithubRepoLicense = {
   key: string;
   name: string | null;
@@ -155,43 +195,138 @@ function pickGithubRepo(data: unknown): GithubRepoSummary | null {
   };
 }
 
-/** `https://api.github.com/users/{username}/repos?sort=pushed` */
-export function githubUserReposApiUrl(username: string): string {
-  return `${GITHUB_API_BASE}/users/${encodeURIComponent(username)}/repos?sort=pushed`;
+export function githubUserReposApiUrl(
+  username: string,
+  query?: { page?: number; per_page?: number },
+): string {
+  const u = encodeURIComponent(username);
+  const sp = new URLSearchParams();
+  sp.set("sort", "pushed");
+  if (query?.page != null) sp.set("page", String(query.page));
+  if (query?.per_page != null) sp.set("per_page", String(query.per_page));
+  return `${GITHUB_API_BASE}/users/${u}/repos?${sp.toString()}`;
 }
 
-/** 请求用户仓库列表并解析为 {@link GithubRepoSummary}[]；失败时返回空数组。 */
+async function aggregateUserPublicRepos(
+  username: string,
+  init?: RequestInit,
+): Promise<{ total_stargazers: number; languages_ranked: string[] }> {
+  let total_stargazers = 0;
+  const languageCounts = new Map<string, number>();
+
+  for (let page = 1; ; page++) {
+    const items = await fetchGithubJsonArray(
+      githubUserReposApiUrl(username, { page, per_page: GITHUB_USER_REPOS_PER_PAGE_MAX }),
+      init,
+    );
+    if (items.length === 0) break;
+
+    for (const item of items) {
+      if (typeof item !== "object" || item === null) continue;
+      const o = item as Record<string, unknown>;
+      const n = num(o.stargazers_count);
+      if (Number.isFinite(n)) total_stargazers += n;
+
+      const lang = o.language;
+      if (typeof lang === "string" && lang.length > 0) {
+        languageCounts.set(lang, (languageCounts.get(lang) ?? 0) + 1);
+      }
+    }
+
+    if (items.length < GITHUB_USER_REPOS_PER_PAGE_MAX) break;
+  }
+
+  const languages_ranked = [...languageCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "en"))
+    .map(([name]) => name);
+
+  return { total_stargazers, languages_ranked };
+}
+
 export async function fetchGithubUserRepos(
   username: string,
   init?: RequestInit,
 ): Promise<GithubRepoSummary[]> {
-  const res = await fetch(githubUserReposApiUrl(username), {
-    ...init,
-    headers: {
-      Accept: "application/vnd.github+json",
-      ...init?.headers,
-    },
-  });
-  if (!res.ok) return [];
-  const json: unknown = await res.json();
-  if (!Array.isArray(json)) return [];
-  return json.map(pickGithubRepo).filter((r): r is GithubRepoSummary => r !== null);
+  const raw = await fetchGithubJsonArray(githubUserReposApiUrl(username), init);
+  return raw.map(pickGithubRepo).filter((r): r is GithubRepoSummary => r !== null);
 }
 
-/** 使用 {@link GITHUB_PROFILE_URL} 对应用户拉取仓库列表。 */
 export async function fetchSiteGithubUserRepos(init?: RequestInit): Promise<GithubRepoSummary[]> {
   const username = usernameFromGithubProfileUrl(GITHUB_PROFILE_URL);
   return username ? fetchGithubUserRepos(username, init) : [];
 }
 
-/** 从个人主页 URL 直接得到用户 API 地址；解析失败返回 `null`。 */
-export function githubUserApiUrlFromProfileUrl(profileUrl: string): string | null {
-  const username = usernameFromGithubProfileUrl(profileUrl);
-  return username ? githubUserApiUrl(username) : null;
+export type GithubPublicEventSummary = {
+  type: string;
+  name: string;
+  created_at: string;
+};
+
+type GithubPublicEvent = {
+  id: string;
+  type: string;
+  actor: Record<string, unknown>;
+  repo: { id: number; name: string; url: string };
+  payload: Record<string, unknown>;
+  public: boolean;
+  created_at: string;
+};
+
+function githubUserEventsApiUrl(
+  username: string,
+  page: number,
+  perPage: number = GITHUB_USER_EVENTS_PER_PAGE_MAX,
+): string {
+  const u = encodeURIComponent(username);
+  const p = Math.max(1, Math.floor(page));
+  const n = Math.min(GITHUB_USER_EVENTS_PER_PAGE_MAX, Math.max(1, Math.floor(perPage)));
+  return `${GITHUB_API_BASE}/users/${u}/events?page=${p}&per_page=${n}`;
 }
 
-/** 从个人主页 URL 直接得到仓库列表 API 地址；解析失败返回 `null`。 */
-export function githubUserReposApiUrlFromProfileUrl(profileUrl: string): string | null {
-  const username = usernameFromGithubProfileUrl(profileUrl);
-  return username ? githubUserReposApiUrl(username) : null;
+function isGithubPublicEvent(x: unknown): x is GithubPublicEvent {
+  if (typeof x !== "object" || x === null) return false;
+  const o = x as Record<string, unknown>;
+  const repo = o.repo;
+  if (typeof repo !== "object" || repo === null) return false;
+  const r = repo as Record<string, unknown>;
+  return (
+    typeof o.id === "string" &&
+    typeof o.type === "string" &&
+    typeof o.created_at === "string" &&
+    typeof o.public === "boolean" &&
+    typeof o.actor === "object" &&
+    o.actor !== null &&
+    typeof o.payload === "object" &&
+    o.payload !== null &&
+    typeof r.id === "number" &&
+    typeof r.name === "string" &&
+    typeof r.url === "string"
+  );
+}
+
+async function fetchGithubUserEventsPage(
+  username: string,
+  page: number,
+  init?: RequestInit,
+  perPage: number = GITHUB_USER_EVENTS_PER_PAGE_MAX,
+): Promise<GithubPublicEvent[]> {
+  const raw = await fetchGithubJsonArray(githubUserEventsApiUrl(username, page, perPage), init);
+  return raw.filter(isGithubPublicEvent);
+}
+
+export async function fetchSiteGithubUserEventSummariesAll(
+  init?: RequestInit,
+): Promise<GithubPublicEventSummary[]> {
+  const username = usernameFromGithubProfileUrl(GITHUB_PROFILE_URL);
+  if (!username) return [];
+
+  const merged: GithubPublicEventSummary[] = [];
+  for (let page = 1; ; page++) {
+    const batch = await fetchGithubUserEventsPage(username, page, init);
+    if (batch.length === 0) break;
+    for (const e of batch) {
+      merged.push({ type: e.type, name: e.repo.name, created_at: e.created_at });
+    }
+  }
+  return merged;
 }

@@ -8,12 +8,12 @@
 	height: 50px;
 	margin: 0;
 	box-sizing: border-box;
-	border-bottom: 1px solid var(--navbar-border);
+	border-bottom: 1px solid var(--theme-surface-border);
 	border-radius: 0 0 12px 12px;
 	overflow: hidden;
-	-webkit-backdrop-filter: blur(12px);
-	backdrop-filter: blur(12px);
-	background-color: var(--navbar-bg);
+	-webkit-backdrop-filter: blur(var(--theme-blur-nav));
+	backdrop-filter: blur(var(--theme-blur-nav));
+	background-color: var(--theme-surface-bg);
 	transition: top 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
@@ -51,7 +51,7 @@
 .brandTitle {
 	font-size: 14px;
 	font-weight: 600;
-	color: var(--navbar-text);
+	color: var(--theme-text);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -70,7 +70,7 @@
 	font-size: 14px;
 	font-weight: 500;
 	transition: opacity 150ms ease;
-	color: var(--navbar-text);
+	color: var(--theme-text);
 	text-decoration: none;
 	flex: 0 0 auto;
 	white-space: nowrap;
@@ -94,8 +94,12 @@
 	z-index: 19;
 	width: 100px;
 	height: 16px;
-	background-color: var(--navbar-bg);
-	color: var(--navbar-text);
+	box-sizing: border-box;
+	/* 与 .nav 一致：昼夜变量 + 同档模糊 */
+	-webkit-backdrop-filter: blur(var(--theme-blur-nav));
+	backdrop-filter: blur(var(--theme-blur-nav));
+	background-color: var(--theme-surface-bg);
+	color: var(--theme-text);
 	display: flex;
 	align-items: center;
 	justify-content: center;

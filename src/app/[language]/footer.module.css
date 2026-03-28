@@ -24,11 +24,11 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	color: var(--navbar-text);
-	background: var(--navbar-bg);
-	border: 1px solid var(--navbar-border);
-	-webkit-backdrop-filter: blur(10px);
-	backdrop-filter: blur(10px);
+	color: var(--theme-text);
+	background: var(--theme-surface-bg);
+	border: 1px solid var(--theme-surface-border);
+	-webkit-backdrop-filter: blur(var(--theme-blur-footer));
+	backdrop-filter: blur(var(--theme-blur-footer));
 	cursor: pointer;
 	z-index: 2;
 }
@@ -82,11 +82,11 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--navbar-bg);
-	-webkit-backdrop-filter: blur(10px);
-	backdrop-filter: blur(10px);
-	color: var(--navbar-text);
-	border: 1px solid var(--navbar-border);
+	background: var(--theme-surface-bg);
+	-webkit-backdrop-filter: blur(var(--theme-blur-footer));
+	backdrop-filter: blur(var(--theme-blur-footer));
+	color: var(--theme-text);
+	border: 1px solid var(--theme-surface-border);
 	cursor: pointer;
 	pointer-events: none;
 	opacity: 0;
@@ -100,7 +100,7 @@
 }
 
 .subBtn:hover {
-	background: var(--navbar-bg-hover);
+	background: var(--theme-surface-bg-hover);
 }
 
 /* 子按钮位置由 keyframes 控制；closed 基础态 transform 由 .sub1~.sub4 提供 */
