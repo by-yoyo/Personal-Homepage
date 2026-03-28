@@ -6,11 +6,17 @@
 	gap: 16px;
 	padding: 25px 50px;
 	box-sizing: border-box;
+	min-width: 0;
+	width: 100%;
+	max-width: 100%;
 }
 
 .profileGrid {
 	display: flex;
 	gap: 16px;
+	min-width: 0;
+	width: 100%;
+	max-width: 100%;
 }
 
 .leftColumn {

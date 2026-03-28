@@ -5,7 +5,8 @@
 	"navblog": "Blog",
 	"navbrandTitle": "Qiu Jin",
 	"profile": {
-		"title": "Homepage"
+		"title": "Homepage",
+		"languagesRankedIntro": "Top six stacks I've used by repo count: "
 	},
 	"about": {
 		"title": "About"

@@ -6,7 +6,7 @@ export default async function LeftBottomCard() {
 
 	return (
 		<div className={styles.box}>
-			<pre>{JSON.stringify(events, null, 2)}</pre>
+			<pre className={styles.jsonPre}>{JSON.stringify(events, null, 2)}</pre>
 		</div>
 	);
 }

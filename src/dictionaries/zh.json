@@ -5,7 +5,8 @@
 	"navblog": "博客",
 	"navbrandTitle": "秋瑾",
 	"profile": {
-		"title": "首页"
+		"title": "首页",
+		"languagesRankedIntro": "我所使用过且排名前六的技术栈："
 	},
 	"about": {
 		"title": "关于"

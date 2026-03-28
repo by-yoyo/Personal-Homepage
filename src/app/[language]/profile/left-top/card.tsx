@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-import type { Locale } from '@/dictionaries';
+import { getDictionary, type Locale } from '@/dictionaries';
 import { fetchSiteGithubUserProfile } from '@/lib/github';
 import styles from './page.module.css';
 
@@ -35,9 +35,10 @@ async function fetchHitokotoText(): Promise<string | null> {
 }
 
 export default async function LeftTopCard({ locale }: { locale: Locale }) {
-	const [githubUser, hitokoto] = await Promise.all([
+	const [githubUser, hitokoto, dictionary] = await Promise.all([
 		fetchSiteGithubUserProfile(),
 		fetchHitokotoText(),
+		getDictionary(locale),
 	]);
 
 	if (!githubUser) {
@@ -69,22 +70,31 @@ export default async function LeftTopCard({ locale }: { locale: Locale }) {
 					<Image
 						className={styles.avatar}
 						src={avatar_url}
-						alt=""
+						alt=''
 						width={100}
 						height={100}
 						priority
 					/>
 				) : (
-					<div className={styles.avatarPlaceholder} aria-hidden />
+					<div
+						className={styles.avatarPlaceholder}
+						aria-hidden
+					/>
 				)}
 				<div className={styles.identity}>
 					<div className={styles.segmentRow}>
-						<h2 className={styles.name}>{name ?? '—'}</h2>
-						{location && <p className={styles.meta}>{location}</p>}
+						<div className={styles.nameRow}>
+							<h2 className={styles.name}>{name ?? '—'}</h2>
+							{location && <p className={styles.meta}>{location}</p>}
+						</div>
 					</div>
 					<div className={styles.segmentRow}>
 						{href ? (
-							<a className={styles.link} href={href} target="_blank" rel="noopener noreferrer">
+							<a
+								className={styles.link}
+								href={href}
+								target='_blank'
+								rel='noopener noreferrer'>
 								{blog!.trim()}
 							</a>
 						) : (
@@ -95,7 +105,9 @@ export default async function LeftTopCard({ locale }: { locale: Locale }) {
 						{created_at ? (
 							<p className={styles.joined}>
 								{locale === 'zh' ? '加入于 ' : 'Joined '}
-								<time dateTime={created_at}>{formatJoinedAt(created_at, locale)}</time>
+								<time dateTime={created_at}>
+									{formatJoinedAt(created_at, locale)}
+								</time>
 							</p>
 						) : (
 							<span className={styles.segmentPlaceholder} />
@@ -105,7 +117,10 @@ export default async function LeftTopCard({ locale }: { locale: Locale }) {
 						{hitokoto ? (
 							<p className={styles.hitokoto}>{hitokoto}</p>
 						) : (
-							<span className={styles.segmentPlaceholder} aria-hidden />
+							<span
+								className={styles.segmentPlaceholder}
+								aria-hidden
+							/>
 						)}
 					</div>
 				</div>
@@ -114,7 +129,10 @@ export default async function LeftTopCard({ locale }: { locale: Locale }) {
 			<div className={styles.tail}>
 				{bio && <p className={styles.bio}>{bio}</p>}
 				{languages_ranked.length > 0 && (
-					<p className={styles.languages}>{languages_ranked.join(' · ')}</p>
+					<p className={styles.languages}>
+						{dictionary.profile.languagesRankedIntro}
+						{languages_ranked.join(' · ')}
+					</p>
 				)}
 				<dl className={styles.stats}>
 					<div className={styles.stat}>

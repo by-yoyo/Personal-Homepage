@@ -1,7 +1,12 @@
 .box {
 	width: 100%;
+	min-width: 0;
+	max-width: 100%;
 	min-height: 0;
 	height: auto;
+	padding: 1rem 1.125rem;
+	box-sizing: border-box;
+	overflow: visible;
 	background: var(--theme-surface-bg);
 	border: 1px solid var(--theme-surface-border);
 	border-radius: 8px;
@@ -9,3 +14,15 @@
 	backdrop-filter: blur(var(--theme-blur-card));
 }
 
+.jsonPre {
+	margin: 0;
+	min-width: 0;
+	max-width: 100%;
+	overflow: visible;
+	font-size: 0.75rem;
+	line-height: 1.45;
+	tab-size: 2;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}

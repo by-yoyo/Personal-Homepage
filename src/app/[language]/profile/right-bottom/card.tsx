@@ -6,7 +6,7 @@ export default async function RightBottomCard() {
 
 	return (
 		<div className={styles.box}>
-			<pre>{JSON.stringify(repos, null, 2)}</pre>
+			<pre className={styles.jsonPre}>{JSON.stringify(repos, null, 2)}</pre>
 		</div>
 	);
 }
