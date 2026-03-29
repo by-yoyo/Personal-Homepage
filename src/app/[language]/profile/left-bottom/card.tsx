@@ -10,15 +10,18 @@ export default async function LeftBottomCard({ locale }: { locale: Locale }) {
 	]);
 
 	const points = summarizeGithubEventsCurrentYear(events, { locale });
+	const p = dictionary.profile;
 
 	return (
 		<LeftBottomCardClient
 			points={points}
 			events={events}
-			chartTitle={dictionary.profile.activityChartTitle}
-			monthEventListCaption={dictionary.profile.monthEventListCaption}
-			emptyNoActivity={dictionary.profile.monthEventsEmptyNoActivity}
-			emptyFuture={dictionary.profile.monthEventsEmptyFuture}
+			labels={{
+				chartTitle: p.activityChartTitle,
+				monthEventListCaption: p.monthEventListCaption,
+				monthEventsEmptyNoActivity: p.monthEventsEmptyNoActivity,
+				monthEventsEmptyFuture: p.monthEventsEmptyFuture,
+			}}
 		/>
 	);
 }

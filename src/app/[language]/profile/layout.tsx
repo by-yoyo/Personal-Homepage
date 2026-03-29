@@ -48,7 +48,7 @@ export default async function RootLayout({
 				</div>
 				<div className={styles.rightColumn}>
 					<RightTopCard />
-					<RightBottomCard />
+					<RightBottomCard locale={locale} />
 				</div>
 			</div>
 

@@ -9,10 +9,11 @@
     "**/.git/**"
   ],
   "words": [
-    "crossfading",
     "backgroundrefresh",
+    "backgroundtoggle",
+    "crossfading",
     "navblog",
     "navbrandTitle",
-    "backgroundtoggle"
+    "NOASSERTION"
   ]
 }

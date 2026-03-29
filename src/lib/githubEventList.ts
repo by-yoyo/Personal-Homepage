@@ -48,6 +48,11 @@ export function formatEventListRepo(name: string): string {
 	return repo.length > 0 ? repo : name;
 }
 
+/** 单行展示：`repo:type-次数` */
+export function formatEventListLine(row: GithubEventNameTypeRow): string {
+	return `${formatEventListRepo(row.rawName)}:${row.type}-${row.count}`;
+}
+
 /** 相同 name 下按 type 分别计数，并记录该组内最近一次 `created_at` */
 export function aggregateEventsByNameAndType(
 	events: GithubPublicEventSummary[],
