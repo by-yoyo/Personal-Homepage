@@ -14,7 +14,6 @@ import {
 	clampOddMiddleSlots,
 	clampPageIndex,
 } from './repoPagination';
-import { RepoLanguages } from './repo-languages';
 import { RepoPaginationBar } from './repo-pagination-bar';
 import styles from './page.module.css';
 
@@ -97,26 +96,10 @@ export type RightBottomRepoLabels = {
 	created: string;
 	updated: string;
 	pushed: string;
-	languagesHeading: string;
-	languagesTotal: string;
-	languagesFailed: string;
-	languagesLoading: string;
 	prev: string;
 	next: string;
 	paginationAria: string;
 };
-
-type EntryLabels = Pick<
-	RightBottomRepoLabels,
-	| 'noDesc'
-	| 'created'
-	| 'updated'
-	| 'pushed'
-	| 'languagesHeading'
-	| 'languagesTotal'
-	| 'languagesFailed'
-	| 'languagesLoading'
->;
 
 function RepoSortMenu({
 	locale,
@@ -230,7 +213,7 @@ function RepoEntry({
 }: {
 	repo: GithubRepoSummary;
 	locale: Locale;
-	labels: EntryLabels;
+	labels: RightBottomRepoLabels;
 }) {
 	const lic = licenseLabel(repo.license);
 
@@ -274,16 +257,6 @@ function RepoEntry({
 					<dd>{formatRepoDate(repo.pushed_at, locale)}</dd>
 				</div>
 			</dl>
-			<RepoLanguages
-				full_name={repo.full_name}
-				locale={locale}
-				labels={{
-					heading: labels.languagesHeading,
-					total: labels.languagesTotal,
-					failed: labels.languagesFailed,
-					loading: labels.languagesLoading,
-				}}
-			/>
 		</li>
 	);
 }
@@ -343,16 +316,6 @@ export function RightBottomCardClient({
 	const arrowsTightToPages = totalPages <= middleSlots;
 
 	const hasRepos = repos.length > 0;
-	const entryLabels: EntryLabels = {
-		noDesc: labels.noDesc,
-		created: labels.created,
-		updated: labels.updated,
-		pushed: labels.pushed,
-		languagesHeading: labels.languagesHeading,
-		languagesTotal: labels.languagesTotal,
-		languagesFailed: labels.languagesFailed,
-		languagesLoading: labels.languagesLoading,
-	};
 
 	return (
 		<div className={styles.box}>
@@ -377,7 +340,7 @@ export function RightBottomCardClient({
 								key={repo.name}
 								repo={repo}
 								locale={locale}
-								labels={entryLabels}
+								labels={labels}
 							/>
 						))}
 					</ul>

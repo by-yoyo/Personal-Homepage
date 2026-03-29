@@ -315,39 +315,6 @@ export async function fetchGithubUserRepos(
 	}));
 }
 
-/** 解析 `GET /repos/{owner}/{repo}/languages` 的 JSON 体 */
-export function parseGithubRepoLanguagesJson(
-	data: unknown,
-): Record<string, number> {
-	if (typeof data !== 'object' || data === null) return {};
-	const out: Record<string, number> = {};
-	for (const [k, v] of Object.entries(data as Record<string, unknown>)) {
-		const n = typeof v === 'number' ? v : Number(v);
-		if (Number.isFinite(n) && n >= 0) out[k] = n;
-	}
-	return out;
-}
-
-export function githubRepoLanguagesApiUrl(owner: string, repo: string): string {
-	return `${GITHUB_API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/languages`;
-}
-
-/** 服务端拉取仓库语言占比；与站点其它 GitHub 请求共用 Data Cache（`revalidate: 3600`） */
-export async function fetchGithubRepoLanguages(
-	owner: string,
-	repo: string,
-	init?: RequestInit,
-): Promise<Record<string, number>> {
-	const url = githubRepoLanguagesApiUrl(owner, repo);
-	const res = await fetch(url, githubFetchInit(init));
-	if (!res.ok) {
-		if (res.status === 404) return {};
-		throw new Error(`GitHub languages ${res.status}`);
-	}
-	const json: unknown = await res.json();
-	return parseGithubRepoLanguagesJson(json);
-}
-
 export async function fetchSiteGithubUserRepos(
 	init?: RequestInit,
 ): Promise<GithubRepoSummary[]> {

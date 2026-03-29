@@ -1,4 +1,4 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import {
 	defaultLocale,
@@ -6,11 +6,6 @@ import {
 	isValidLocale,
 	type Locale,
 } from '@/dictionaries';
-
-interface LayoutProps {
-	children: React.ReactNode;
-	params: Promise<{ language: string }>;
-}
 
 export async function generateMetadata({
 	params,
@@ -27,12 +22,6 @@ export async function generateMetadata({
 	};
 }
 
-export default function RootLayout({
-	children,
-}: Readonly<LayoutProps>) {
-	return (
-		<div>
-			<div>{children}</div>
-		</div>
-	);
+export default function RootLayout({ children }: { children: ReactNode }) {
+	return children;
 }

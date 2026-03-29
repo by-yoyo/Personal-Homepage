@@ -1,4 +1,4 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import {
 	defaultLocale,
@@ -13,7 +13,7 @@ import RightBottomCard from './right-bottom/card';
 import styles from './layout.module.css';
 
 interface LayoutProps {
-	children: React.ReactNode;
+	children: ReactNode;
 	params: Promise<{ language: string }>;
 }
 
@@ -52,7 +52,7 @@ export default async function RootLayout({
 				</div>
 			</div>
 
-			<div className={styles.children}>{children}</div>
+			{children}
 		</div>
 	);
 }

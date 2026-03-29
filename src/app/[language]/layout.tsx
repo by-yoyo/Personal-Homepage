@@ -1,4 +1,4 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { cookies } from 'next/headers';
 import './globals.css';
@@ -27,7 +27,7 @@ export default async function RootLayout({
 	children,
 	params,
 }: Readonly<{
-	children: React.ReactNode;
+	children: ReactNode;
 	params: Promise<{ language: string }>;
 }>) {
 	const { language } = await params;
