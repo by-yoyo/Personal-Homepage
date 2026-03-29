@@ -8,7 +8,10 @@
 		"title": "Homepage",
 		"languagesRankedIntro": "Top six stacks I've used by repo count: ",
 		"activityChartTitle": "Public activity this year",
-		"bioEmptyFallback": "Too lazy to write a bio."
+		"bioEmptyFallback": "Too lazy to write a bio.",
+		"monthEventListCaption": "Activity",
+		"monthEventsEmptyNoActivity": "No activity this month yet.",
+		"monthEventsEmptyFuture": "This month hasn’t arrived yet."
 	},
 	"about": {
 		"title": "About"

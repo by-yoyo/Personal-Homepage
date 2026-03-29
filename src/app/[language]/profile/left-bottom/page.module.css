@@ -22,6 +22,46 @@
 	letter-spacing: 0.02em;
 }
 
+.monthEventHeading {
+	margin: 0.875rem 0 0.4rem;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--theme-text);
+	letter-spacing: 0.02em;
+}
+
+.monthEventEmpty {
+	margin: 0;
+	font-size: 0.75rem;
+	color: var(--theme-text-muted);
+	line-height: 1.45;
+}
+
+.eventList {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	min-width: 0;
+	overflow: visible;
+}
+
+.eventRow {
+	margin: 0;
+	font-size: 0.72rem;
+	line-height: 1.45;
+	color: var(--theme-text-muted);
+	min-width: 0;
+}
+
+.eventLine {
+	display: block;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
 .chartWrap {
 	width: 100%;
 	min-width: 0;
@@ -50,23 +90,104 @@
 .chartXLabel {
 	fill: var(--theme-text-muted);
 	font-size: 15px;
+	pointer-events: none;
 }
 
 .chartArea {
 	pointer-events: none;
 }
 
-.chartLine {
-	stroke: currentColor;
+.chartSegGreen,
+.chartSegRed,
+.chartSegYellow,
+.chartSegNeutral {
+	fill: none;
 	stroke-width: 2;
 	stroke-linecap: round;
 	stroke-linejoin: round;
 	vector-effect: non-scaling-stroke;
+	pointer-events: none;
 }
 
-.chartDot {
+.chartSegGreen {
+	stroke: #22c55e;
+}
+
+.chartSegRed {
+	stroke: #ef4444;
+}
+
+.chartSegYellow {
+	stroke: #ca8a04;
+}
+
+/* 最后一个已过节点 → 第一个未过节点之间的折线段（黄虚线） */
+.chartSegYellowDashed {
+	fill: none;
+	stroke: #ca8a04;
+	stroke-width: 2;
+	stroke-dasharray: 6 5;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	vector-effect: non-scaling-stroke;
+	pointer-events: none;
+}
+
+.chartSegNeutral {
+	stroke: var(--theme-text-subtle);
+}
+
+.chartHit {
+	fill: transparent;
+	stroke: none;
+	pointer-events: all;
+	cursor: pointer;
+}
+
+.chartTooltip {
+	pointer-events: none;
+}
+
+.chartTooltipRect {
 	fill: var(--theme-surface-bg);
-	stroke: currentColor;
+	stroke: var(--theme-surface-border);
+	stroke-width: 1;
+	filter: drop-shadow(0 2px 6px rgb(0 0 0 / 0.12));
+}
+
+.chartTooltipText {
+	fill: var(--theme-text);
+	font-size: 13px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.chartDotGreen,
+.chartDotRed,
+.chartDotYellow,
+.chartDotNeutral {
+	fill: var(--theme-surface-bg);
 	stroke-width: 2;
 	vector-effect: non-scaling-stroke;
+	pointer-events: none;
+}
+
+.chartDotGreen {
+	stroke: #16a34a;
+}
+
+.chartDotRed {
+	stroke: #dc2626;
+}
+
+.chartDotYellow {
+	stroke: #ca8a04;
+}
+
+.chartDotNeutral {
+	stroke: var(--theme-text-subtle);
+}
+
+.chartDotSelected {
+	filter: drop-shadow(0 0 4px currentColor);
 }

@@ -7,6 +7,8 @@ export type ActivityMonthPoint = {
 	/** 一月…十二月 / Jan…Dec */
 	label: string;
 	count: number;
+	/** 当年尚未到来的月份（UTC） */
+	isFutureMonth: boolean;
 };
 
 const ZH_MONTH_NAMES = [
@@ -73,12 +75,13 @@ export function summarizeGithubEventsCurrentYear(
 
 	return keys.map((key, i) => {
 		const monthNum = i + 1;
-		const c =
-			monthNum > currentMonth ? 0 : (counts.get(key) ?? 0);
+		const isFuture = monthNum > currentMonth;
+		const c = isFuture ? 0 : (counts.get(key) ?? 0);
 		return {
 			key,
 			label: calendarMonthLabel(monthNum, options.locale),
 			count: c,
+			isFutureMonth: isFuture,
 		};
 	});
 }
