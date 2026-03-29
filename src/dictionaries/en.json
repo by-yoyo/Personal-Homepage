@@ -6,7 +6,9 @@
 	"navbrandTitle": "Qiu Jin",
 	"profile": {
 		"title": "Homepage",
-		"languagesRankedIntro": "Top six stacks I've used by repo count: "
+		"languagesRankedIntro": "Top six stacks I've used by repo count: ",
+		"activityChartTitle": "Public activity this year",
+		"bioEmptyFallback": "Too lazy to write a bio."
 	},
 	"about": {
 		"title": "About"

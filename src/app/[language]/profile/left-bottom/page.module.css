@@ -4,25 +4,69 @@
 	max-width: 100%;
 	min-height: 0;
 	height: auto;
-	padding: 1rem 1.125rem;
+	padding: 1.125rem 1.25rem;
 	box-sizing: border-box;
 	overflow: visible;
 	background: var(--theme-surface-bg);
 	border: 1px solid var(--theme-surface-border);
-	border-radius: 8px;
+	border-radius: 10px;
 	-webkit-backdrop-filter: blur(var(--theme-blur-card));
 	backdrop-filter: blur(var(--theme-blur-card));
 }
 
-.jsonPre {
-	margin: 0;
+.chartHeading {
+	margin: 0 0 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--theme-text);
+	letter-spacing: 0.02em;
+}
+
+.chartWrap {
+	width: 100%;
 	min-width: 0;
-	max-width: 100%;
 	overflow: visible;
-	font-size: 0.75rem;
-	line-height: 1.45;
-	tab-size: 2;
-	white-space: pre-wrap;
-	overflow-wrap: anywhere;
-	word-break: break-word;
+}
+
+.chartSvg {
+	width: 100%;
+	height: auto;
+	display: block;
+	overflow: visible;
+	color: var(--theme-link);
+}
+
+.chartGrid {
+	stroke: var(--theme-text-subtle);
+	stroke-opacity: 0.22;
+	stroke-width: 1;
+}
+
+.chartTick {
+	fill: var(--theme-text-muted);
+	font-size: 13px;
+}
+
+.chartXLabel {
+	fill: var(--theme-text-muted);
+	font-size: 15px;
+}
+
+.chartArea {
+	pointer-events: none;
+}
+
+.chartLine {
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	vector-effect: non-scaling-stroke;
+}
+
+.chartDot {
+	fill: var(--theme-surface-bg);
+	stroke: currentColor;
+	stroke-width: 2;
+	vector-effect: non-scaling-stroke;
 }

@@ -127,7 +127,11 @@ export default async function LeftTopCard({ locale }: { locale: Locale }) {
 			</div>
 
 			<div className={styles.tail}>
-				{bio && <p className={styles.bio}>{bio}</p>}
+				<p className={styles.bio}>
+					{bio?.trim()
+						? bio
+						: dictionary.profile.bioEmptyFallback}
+				</p>
 				{languages_ranked.length > 0 && (
 					<p className={styles.languages}>
 						{dictionary.profile.languagesRankedIntro}

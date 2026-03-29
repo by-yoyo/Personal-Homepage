@@ -4,12 +4,12 @@
 	max-width: 100%;
 	min-height: 0;
 	height: auto;
-	padding: 1rem 1.125rem;
+	padding: 1.125rem 1.25rem;
 	box-sizing: border-box;
 	overflow: visible;
 	background: var(--theme-surface-bg);
 	border: 1px solid var(--theme-surface-border);
-	border-radius: 8px;
+	border-radius: 10px;
 	-webkit-backdrop-filter: blur(var(--theme-blur-card));
 	backdrop-filter: blur(var(--theme-blur-card));
 }

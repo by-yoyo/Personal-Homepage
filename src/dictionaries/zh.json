@@ -6,7 +6,9 @@
 	"navbrandTitle": "秋瑾",
 	"profile": {
 		"title": "首页",
-		"languagesRankedIntro": "我所使用过且排名前六的技术栈："
+		"languagesRankedIntro": "我所使用过且排名前六的技术栈：",
+		"activityChartTitle": "今年公开活动",
+		"bioEmptyFallback": "这个人很懒，什么都没写。"
 	},
 	"about": {
 		"title": "关于"

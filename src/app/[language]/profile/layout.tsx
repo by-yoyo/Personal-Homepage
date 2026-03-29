@@ -44,7 +44,7 @@ export default async function RootLayout({
 			<div className={styles.profileGrid}>
 				<div className={styles.leftColumn}>
 					<LeftTopCard locale={locale} />
-					<LeftBottomCard />
+					<LeftBottomCard locale={locale} />
 				</div>
 				<div className={styles.rightColumn}>
 					<RightTopCard />
