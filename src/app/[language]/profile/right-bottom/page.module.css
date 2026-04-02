@@ -245,6 +245,22 @@
 	word-break: break-word;
 }
 
+.repoNameLink {
+	color: var(--theme-text);
+	text-decoration: none;
+}
+
+.repoNameLink:hover {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.repoNameLink:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent) 28%, transparent);
+	border-radius: 6px;
+}
+
 .repoUpdatedInline {
 	display: inline-flex;
 	flex-wrap: nowrap;

@@ -8,6 +8,8 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { Locale } from '@/dictionaries';
 import type { GithubRepoSummary } from '@/lib/github';
 import { cn } from '@/lib/utils';
@@ -213,6 +215,7 @@ const RepoEntry = memo(function RepoEntry({
 	locale: Locale;
 	labels: RightBottomRepoLabels;
 }) {
+	const router = useRouter();
 	const lic = licenseLabel(repo.license);
 	const lang = repo.language?.trim() ?? '';
 	const hasMetaChips = Boolean(lang || lic);
@@ -221,11 +224,27 @@ const RepoEntry = memo(function RepoEntry({
 	const createdAt = formatRepoDate(repo.created_at, locale);
 	const pushedAt = formatRepoDate(repo.pushed_at, locale);
 	const updatedTitle = `${labels.updated}${updatedAt}`;
+	const repoHref = `/${locale}/repo/${encodeURIComponent(repo.name)}`;
+	const prefetchRepo = () => router.prefetch(repoHref);
 
 	return (
 		<li className={styles.repoItem}>
 			<div className={styles.repoTitleRow}>
-				<h3 className={styles.repoName}>{repo.name}</h3>
+				<h3 className={styles.repoName}>
+					<Link
+						href={repoHref}
+						prefetch
+						className={styles.repoNameLink}
+						onMouseEnter={prefetchRepo}
+						onFocus={prefetchRepo}
+						aria-label={
+							locale === 'zh'
+								? `打开仓库详情：${repo.name}`
+								: `Open repository details: ${repo.name}`
+						}>
+						{repo.name}
+					</Link>
+				</h3>
 				<div className={styles.repoUpdatedInline} title={updatedTitle}>
 					<time
 						className={styles.repoUpdatedTime}

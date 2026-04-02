@@ -322,6 +322,91 @@ export async function fetchSiteGithubUserRepos(
 	return username ? fetchGithubUserRepos(username, init) : [];
 }
 
+export type GithubRepoDetail = GithubRepoSummary & {
+	html_url: string;
+	private: boolean;
+	fork: boolean;
+	archived: boolean;
+	disabled: boolean;
+	default_branch: string;
+	size: number;
+	has_issues: boolean;
+	has_projects: boolean;
+	has_wiki: boolean;
+	open_issues_count: number;
+};
+
+function pickGithubRepoDetail(data: unknown): GithubRepoDetail | null {
+	const base = pickGithubRepo(data);
+	if (!base) return null;
+	const o = data as Record<string, unknown>;
+	return {
+		...base,
+		html_url: typeof o.html_url === 'string' ? o.html_url : '',
+		private: typeof o.private === 'boolean' ? o.private : false,
+		fork: typeof o.fork === 'boolean' ? o.fork : false,
+		archived: typeof o.archived === 'boolean' ? o.archived : false,
+		disabled: typeof o.disabled === 'boolean' ? o.disabled : false,
+		default_branch:
+			typeof o.default_branch === 'string' ? o.default_branch : 'main',
+		size: typeof o.size === 'number' ? o.size : Number(o.size ?? 0),
+		has_issues: typeof o.has_issues === 'boolean' ? o.has_issues : false,
+		has_projects:
+			typeof o.has_projects === 'boolean' ? o.has_projects : false,
+		has_wiki: typeof o.has_wiki === 'boolean' ? o.has_wiki : false,
+		open_issues_count:
+			typeof o.open_issues_count === 'number'
+				? o.open_issues_count
+				: Number(o.open_issues_count ?? 0),
+	};
+}
+
+export function githubRepoApiUrl(fullName: string): string {
+	const [owner, repo] = fullName.split('/').filter(Boolean);
+	if (!owner || !repo) return `${GITHUB_API_BASE}/repos/`;
+	return `${GITHUB_API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
+}
+
+export async function fetchGithubRepoDetail(
+	fullName: string,
+	init?: RequestInit,
+): Promise<GithubRepoDetail | null> {
+	try {
+		const url = githubRepoApiUrl(fullName);
+		if (!url.endsWith('/')) {
+			const res = await fetch(url, githubFetchInit(init));
+			if (!res.ok) {
+				devGithubWarn(`GET /repos/${fullName} → ${res.status}`);
+				return null;
+			}
+			const json: unknown = await res.json();
+			const detail = pickGithubRepoDetail(json);
+			return detail
+				? {
+						...detail,
+						full_name:
+							detail.full_name.trim().length > 0 ? detail.full_name : fullName,
+					}
+				: null;
+		}
+		return null;
+	} catch (e) {
+		devGithubWarn('fetchGithubRepoDetail', e);
+		return null;
+	}
+}
+
+/** 站点固定用户下，按仓库名拉取详情（name 或 owner/name 都支持） */
+export async function fetchSiteGithubRepoDetail(
+	repo: string,
+	init?: RequestInit,
+): Promise<GithubRepoDetail | null> {
+	const username = usernameFromGithubProfileUrl(GITHUB_PROFILE_URL);
+	if (!username) return null;
+	const fullName = repo.includes('/') ? repo : `${username}/${repo}`;
+	return fetchGithubRepoDetail(fullName, init);
+}
+
 export type GithubPublicEventSummary = {
 	type: string;
 	name: string;

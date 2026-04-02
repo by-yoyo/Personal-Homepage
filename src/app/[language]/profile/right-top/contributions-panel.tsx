@@ -199,28 +199,90 @@ function renderYearBarsSvg({
 	const barAreaH = H - PAD_T - PAD_B;
 	const GAP = 8;
 	const barW = Math.max(8, Math.floor((W - PAD_L - PAD_R - GAP * (n - 1)) / n));
+	const yBase = PAD_T + barAreaH;
+	const gridStroke = 'var(--theme-text-subtle)';
+	const barRadius = 4;
+
+	function buildTopRoundedBottomSquarePath({
+		x,
+		y,
+		width,
+		height,
+		radius,
+	}: {
+		x: number;
+		y: number;
+		width: number;
+		height: number;
+		radius: number;
+	}): string {
+		const r = Math.max(0, Math.min(radius, width / 2, height / 2));
+		if (r <= 0.01) return `M ${x} ${y} H ${x + width} V ${y + height} H ${x} Z`;
+
+		// 圆角只在上方，底部两脚保持直角
+		return [
+			`M ${x + r} ${y}`,
+			`H ${x + width - r}`,
+			`A ${r} ${r} 0 0 1 ${x + width} ${y + r}`,
+			`V ${y + height}`,
+			`H ${x}`,
+			`V ${y + r}`,
+			`A ${r} ${r} 0 0 1 ${x + r} ${y}`,
+			'Z',
+		].join(' ');
+	}
 
 	return (
 		<svg className={styles.yearsBarsSvg} viewBox={`0 0 ${W} ${H}`} role='img' aria-label={byYearLabel}>
+			{/* baseline */}
+			<line x1={PAD_L} y1={yBase} x2={W - PAD_R} y2={yBase} stroke={gridStroke} strokeOpacity={0.22} strokeWidth={0.85} />
+			{/* faint grid lines */}
+			{[0.25, 0.5, 0.75].map((p) => {
+				const y = yBase - p * barAreaH;
+				return (
+					<line
+						key={p}
+						x1={PAD_L}
+						y1={y}
+						x2={W - PAD_R}
+						y2={y}
+						stroke={gridStroke}
+						strokeOpacity={0.14}
+						strokeWidth={0.85}
+					/>
+				);
+			})}
+
 			{yearsAsc.map((it, i) => {
 				const h = Math.round((it.count / maxCount) * barAreaH);
 				const x = PAD_L + i * (barW + GAP);
-				const y = PAD_T + (barAreaH - h);
-				const countTextY = Math.max(6, y - 4);
+				const barH = Math.max(1, h);
+				const y = PAD_T + (barAreaH - barH);
 				const yearTextY = H - 10;
 				const picked = it.year === selectedYear;
+				// 只在柱子有一定高度时显示“count”，避免数字与基线/其他元素挤在一起
+				const showCount = it.count > 0 && barH >= 10;
+				const barFill = picked
+					? 'var(--theme-accent, rgb(59, 130, 246))'
+					: 'color-mix(in srgb, var(--theme-accent, rgb(59, 130, 246)) 22%, var(--theme-text-subtle) 78%)';
+				const barTextFill = picked ? 'var(--theme-text)' : 'var(--theme-text-muted)';
+				// 让 count 文本 baseline 跑到柱子顶部上方，避免“部分落在柱子里”的情况
+				const countTextY = Math.max(0, y - 2);
+				const barOpacity = picked ? 1 : it.count === 0 ? 0.16 : 0.78;
 
 				return (
 					<g key={it.year}>
-						<rect
-							x={x}
-							y={y}
-							width={barW}
-							height={Math.max(1, h)}
-							rx={3}
-							fill='var(--theme-accent, #58a6ff)'
-							opacity={it.count === 0 ? 0.2 : picked ? 1 : 0.95}
-							stroke={picked ? 'var(--theme-text)' : 'transparent'}
+						<path
+							d={buildTopRoundedBottomSquarePath({
+								x,
+								y,
+								width: barW,
+								height: barH,
+								radius: barRadius,
+							})}
+							fill={barFill}
+							opacity={barOpacity}
+							stroke={picked ? 'var(--theme-accent)' : 'transparent'}
 							strokeWidth={picked ? 1 : 0}
 							style={{ cursor: 'pointer' }}
 							onClick={() => onPickYear(it.year)}
@@ -233,14 +295,15 @@ function renderYearBarsSvg({
 							fill='var(--theme-text-muted)'>
 							{it.year}
 						</text>
-						{it.count > 0 ? (
+						{showCount ? (
 							<text
 								x={x + barW / 2}
 								y={countTextY}
 								textAnchor='middle'
 								fontSize='10'
 								fontWeight={650}
-								fill='var(--theme-text)'>
+								fill={barTextFill}
+								opacity={picked ? 1 : 0.95}>
 								{it.count}
 							</text>
 						) : null}
@@ -280,6 +343,13 @@ export default function ContributionsPanel({
 	const byYearLabel = contributions.byYearLabel;
 	const calendarTitle = `${contributions.calendarTitlePrefix}${effectiveSelectedYear}`;
 
+	// 记录年份变化方向：用于日历左右滑入动画
+	const [calendarAnimDir, setCalendarAnimDir] = useState<'forward' | 'backward'>('forward');
+	function onPickYearWithAnim(y: number) {
+		setCalendarAnimDir(y >= effectiveSelectedYear ? 'forward' : 'backward');
+		setSelectedYear(y);
+	}
+
 	return (
 		<div className={styles.contribWrap} aria-label='GitHub contributions'>
 			<h3 className={styles.contribTitle}>{contributions.title}</h3>
@@ -306,7 +376,14 @@ export default function ContributionsPanel({
 
 			{selectedCalendar.length > 0 ? (
 				<div className={styles.calendarWrap}>
-					{renderCalendarSvg({ calendarDays: selectedCalendar })}
+					<div
+						key={effectiveSelectedYear}
+						className={[
+							styles.calendarSwitch,
+							calendarAnimDir === 'forward' ? styles.calendarSwitchForward : styles.calendarSwitchBackward,
+						].join(' ')}>
+						{renderCalendarSvg({ calendarDays: selectedCalendar })}
+					</div>
 				</div>
 			) : (
 				<p className={styles.contribEmpty}>
@@ -328,12 +405,14 @@ export default function ContributionsPanel({
 				</div>
 
 				{yearsDesc.length > 0 ? (
-					renderYearBarsSvg({
-						years: yearsDesc,
-						selectedYear: effectiveSelectedYear,
-						onPickYear: (y) => setSelectedYear(y),
-						byYearLabel,
-					})
+					<div className={styles.yearsBarsWrap}>
+						{renderYearBarsSvg({
+							years: yearsDesc,
+							selectedYear: effectiveSelectedYear,
+							onPickYear: (y) => onPickYearWithAnim(y),
+							byYearLabel,
+						})}
+					</div>
 				) : (
 					<p className={styles.contribEmpty}>
 						{contributions.emptyYears}
