@@ -1,0 +1,35 @@
+{
+	"profilePageTitle": "秋瑾的个人主页",
+	"aboutPageTitle": "秋瑾的简介",
+	"linkPageTitle": "秋瑾的项目链接",
+	"navblog": "博客",
+	"navbrandTitle": "秋瑾",
+	"profile": {
+		"title": "首页",
+		"typewriterWelcome": "欢迎您到来",
+		"typewriterWelcomePrefix": "欢迎您到来",
+		"typewriterWelcomeSuffix": "我的个人主页",
+		"contributions": {
+			"title": "GitHub 贡献",
+			"calendarTitlePrefix": "贡献日历：",
+			"byYearLabel": "按年贡献",
+			"totalLabel": "总贡献",
+			"currentStreakLabel": "当前连续",
+			"longestStreakLabel": "最长连续",
+			"emptyCalendar": "暂时无法获取贡献日历。",
+			"emptyYears": "暂无年度数据。"
+		},
+		"languagesRankedIntro": "我所使用过且排名前六的技术栈：",
+		"activityChartTitle": "今年公开活动",
+		"bioEmptyFallback": "这个人很懒，什么都没写。",
+		"monthEventListCaption": "活动记录",
+		"monthEventsEmptyNoActivity": "这个月还没有活动",
+		"monthEventsEmptyFuture": "这个月还没有过呢。"
+	},
+	"about": {
+		"title": "关于"
+	},
+	"link": {
+		"title": "链接"
+	}
+}

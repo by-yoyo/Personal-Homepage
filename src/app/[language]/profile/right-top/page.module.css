@@ -1,0 +1,247 @@
+.box {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: stretch;
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+	min-height: 0;
+	height: auto;
+	padding: 1.125rem 1.25rem;
+	box-sizing: border-box;
+	overflow: visible;
+	background: var(--theme-surface-bg);
+	border: 1px solid var(--theme-surface-border);
+	border-radius: 10px;
+	-webkit-backdrop-filter: blur(var(--theme-blur-card));
+	backdrop-filter: blur(var(--theme-blur-card));
+}
+
+.typeLine {
+	position: relative;
+	margin: 0;
+	min-height: 2.75rem;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	font-size: clamp(0.95rem, 2.1vw, 1.0625rem);
+	font-weight: 600;
+	line-height: 1.45;
+	letter-spacing: 0.03em;
+	color: var(--theme-text);
+}
+
+.visuallyHidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.typeVisible {
+	min-width: 0;
+	max-width: 100%;
+	text-align: center;
+	word-break: break-word;
+}
+
+.cursorChar {
+	display: inline-block;
+	margin-left: 0.1em;
+	font-weight: 600;
+	line-height: 1;
+	vertical-align: baseline;
+	color: color-mix(in srgb, var(--theme-text) 88%, transparent);
+}
+
+.contribWrap {
+	width: 100%;
+	min-width: 0;
+	margin-top: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.contribTitle {
+	margin: 0 0 0.45rem;
+	font-size: 0.875rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	color: var(--theme-text);
+	text-align: center;
+}
+
+.contribStats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem 0.85rem;
+	margin-bottom: 0.55rem;
+	padding-bottom: 0.55rem;
+	border-bottom: 1px solid var(--theme-surface-border);
+}
+
+.streakRow {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin: 0 0 0.35rem;
+}
+
+.calendarTopStat {
+	flex: 0 0 auto;
+	min-width: 5.5rem;
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+	justify-content: flex-start;
+	gap: 0;
+	flex-wrap: nowrap;
+}
+
+.stat {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+}
+
+.statLabel {
+	font-size: 0.7rem;
+	line-height: 1.2;
+	color: var(--theme-text-muted);
+	white-space: nowrap;
+}
+
+.statValue {
+	font-size: 0.95rem;
+	line-height: 1.2;
+	color: var(--theme-text);
+	font-weight: 650;
+	white-space: nowrap;
+}
+
+.calendarWrap {
+	width: 100%;
+	min-width: 0;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	overflow-x: auto;
+	overflow-y: hidden;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(15, 23, 42, 0.25) transparent;
+}
+
+.calendarWrap::-webkit-scrollbar {
+	height: 10px;
+}
+
+.calendarWrap::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.calendarWrap::-webkit-scrollbar-thumb {
+	background: rgba(15, 23, 42, 0.24);
+	border-radius: 999px;
+}
+
+.calendarWrap::-webkit-scrollbar-thumb:hover {
+	background: rgba(15, 23, 42, 0.36);
+}
+
+.contribCalendarSvg {
+	--contrib-0: color-mix(in srgb, var(--theme-text-subtle) 35%, transparent);
+	--contrib-1: color-mix(in srgb, var(--theme-accent, #58a6ff) 16%, transparent);
+	--contrib-2: color-mix(in srgb, var(--theme-accent, #58a6ff) 28%, transparent);
+	--contrib-3: color-mix(in srgb, var(--theme-accent, #58a6ff) 44%, transparent);
+	--contrib-4: color-mix(in srgb, var(--theme-accent, #58a6ff) 62%, transparent);
+	display: block;
+	width: 100%;
+	min-width: 420px;
+	max-width: none;
+	height: auto;
+}
+
+@media (max-width: 520px) {
+	.contribCalendarSvg {
+		min-width: 360px;
+	}
+}
+
+.contribEmpty {
+	margin: 0.25rem 0 0;
+	font-size: 0.75rem;
+	line-height: 1.45;
+	color: var(--theme-text-muted);
+}
+
+/* yearsBlock styles are defined later in this file */
+
+.yearsTitle {
+	margin: 0 0 0.35rem;
+	font-size: 0.75rem;
+	line-height: 1.25;
+	color: var(--theme-text-muted);
+	white-space: nowrap;
+}
+
+.yearsBarsWrap {
+	width: 100%;
+	min-width: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.yearsBarsSvg {
+	display: block;
+	width: 100%;
+	max-width: none;
+	height: auto;
+	overflow: visible;
+}
+
+.calendarHeader {
+	margin: 0;
+	font-size: 0.76rem;
+	line-height: 1.25;
+	color: var(--theme-text-muted);
+	text-align: center;
+	font-weight: 650;
+	flex: 1;
+}
+
+.yearsBlock {
+	margin-top: 0.55rem;
+	padding-top: 0.55rem;
+	border-top: 1px solid var(--theme-surface-border);
+}
+
+.yearsHeaderRow {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin-bottom: 0.35rem;
+}
+
+.yearsCurrent {
+	flex: 0 0 auto;
+	min-width: 6rem;
+	text-align: right;
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+	justify-content: flex-end;
+	gap: 0;
+	white-space: nowrap;
+}

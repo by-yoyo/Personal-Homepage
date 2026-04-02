@@ -1,0 +1,69 @@
+/**
+ * 附加全局样式（由 globals.css 引入）：
+ * - 导航 / 页脚浮动按钮 / Profile 卡片：共用「表面」色与文字色（--theme-*，与 html.dark 同步）
+ * - Footer 背景切换按钮的冷却禁用态
+ */
+
+:root {
+	/* 表面：底色、描边、悬停（更现代的“冷静浅色”） */
+	--theme-surface-bg: rgba(248, 250, 252, 0.8);
+	--theme-surface-border: rgba(15, 23, 42, 0.12);
+	--theme-surface-bg-hover: rgba(255, 255, 255, 0.94);
+
+	/* 文字：主色、次要、弱（更柔和的暗灰） */
+	--theme-text: rgba(15, 23, 42, 0.92);
+	--theme-text-muted: rgba(15, 23, 42, 0.66);
+	--theme-text-subtle: rgba(15, 23, 42, 0.5);
+	--theme-link: rgba(29, 78, 216, 0.96);
+
+	/* 统一强调色（用于图表/芯片等） */
+	--theme-accent: rgb(59, 130, 246);
+
+	/* 背景图片滤镜：让昼夜对比更明显但不刺眼 */
+	--bg-image-brightness-base: 1;
+	--bg-image-brightness-overlay: 0.97;
+
+	--theme-avatar-border: rgba(15, 23, 42, 0.16);
+	--theme-avatar-placeholder-bg: rgba(2, 6, 23, 0.06);
+
+	--theme-blur-nav: 6px;
+	--theme-blur-footer: 5px;
+	/* 主内容预留：抵消固定导航/页脚按钮遮挡（避免内容被盖住） */
+	--app-main-top-pad: 66px; /* navbar 50 + 梯形 16 */
+	--app-main-bottom-pad: 90px; /* footer actions（展开态）预留 */
+	/* Profile 四宫格：与导航同档略轻，避免内容区糊得太重 */
+	--theme-blur-card: 4px;
+}
+
+.dark {
+	/* 深色更接近“磨砂”效果：低对比、不过分刺眼 */
+	--theme-surface-bg: rgba(17, 24, 39, 0.58);
+	--theme-surface-border: rgba(148, 163, 184, 0.22);
+	--theme-surface-bg-hover: rgba(17, 24, 39, 0.78);
+
+	--theme-text: rgba(226, 232, 240, 0.94);
+	--theme-text-muted: rgba(226, 232, 240, 0.66);
+	--theme-text-subtle: rgba(226, 232, 240, 0.5);
+	--theme-link: rgba(129, 199, 255, 0.95);
+
+	--theme-accent: rgb(96, 165, 250);
+
+	--bg-image-brightness-base: 0.68;
+	--bg-image-brightness-overlay: 0.6;
+
+	--theme-avatar-border: rgba(148, 163, 184, 0.34);
+	--theme-avatar-placeholder-bg: rgba(255, 255, 255, 0.06);
+}
+
+/* 背景按钮（Footer）点击冷却禁用态（与 layout 相关的背景层样式已拆到 background.module.css） */
+button[data-bg-toggle="true"][disabled] {
+	opacity: 0.55;
+	cursor: not-allowed;
+	filter: grayscale(0.2);
+}
+
+button[data-bg-refresh="true"][disabled] {
+	opacity: 0.55;
+	cursor: not-allowed;
+	filter: grayscale(0.2);
+}

@@ -1,0 +1,196 @@
+.nav {
+	position: fixed;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 20;
+	width: 700px;
+	height: 50px;
+	margin: 0;
+	box-sizing: border-box;
+	border-bottom: 1px solid var(--theme-surface-border);
+	border-radius: 0 0 12px 12px;
+	overflow: hidden;
+	-webkit-backdrop-filter: blur(var(--theme-blur-nav));
+	backdrop-filter: blur(var(--theme-blur-nav));
+	background-color: var(--theme-surface-bg);
+	transition: top 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.toggle {
+	/* 用于纯 CSS 状态切换（checkbox + label） */
+	position: fixed;
+	opacity: 0;
+	width: 1px;
+	height: 1px;
+	pointer-events: none;
+}
+
+.toggle:checked ~ .nav {
+	top: -50px;
+}
+
+.container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0 16px;
+	box-sizing: border-box;
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+}
+
+.brandTitle {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--theme-text);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.links {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 300px;
+	flex: 0 0 300px;
+	overflow: hidden;
+}
+
+.link {
+	font-size: 14px;
+	font-weight: 500;
+	transition: opacity 150ms ease;
+	color: var(--theme-text);
+	text-decoration: none;
+	flex: 0 0 auto;
+	white-space: nowrap;
+}
+
+.link:hover {
+	opacity: 0.8;
+}
+
+.link:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 3px;
+	border-radius: 6px;
+}
+
+.trapezoid {
+	position: fixed;
+	top: 50px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 19;
+	width: 100px;
+	height: 16px;
+	box-sizing: border-box;
+	/* 与 .nav 一致：昼夜变量 + 同档模糊 */
+	-webkit-backdrop-filter: blur(var(--theme-blur-nav));
+	backdrop-filter: blur(var(--theme-blur-nav));
+	background-color: var(--theme-surface-bg);
+	color: var(--theme-text);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* 上宽下窄 */
+	clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 10% 100%);
+	pointer-events: auto;
+	cursor: pointer;
+	border: 0;
+	padding: 0;
+	appearance: none;
+	outline: none;
+	transition: top 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	perspective: 600px;
+	will-change: top;
+}
+
+.trapezoidIcon {
+	width: 14px;
+	height: 14px;
+	pointer-events: none;
+	transform: rotateX(0deg) scaleX(1.45);
+	transform-origin: center;
+	transform-style: preserve-3d;
+	/* 用 keyframes 控制：箭头 -> 直线 -> 箭头 */
+	transition: none;
+	will-change: transform;
+	backface-visibility: visible;
+}
+
+@keyframes trapezoidIconToDown {
+	0% {
+		transform: rotateX(0deg) scaleX(1.45);
+	}
+	50% {
+		transform: rotateX(90deg) scaleX(1.45);
+	}
+	100% {
+		transform: rotateX(180deg) scaleX(1.45);
+	}
+}
+
+@keyframes trapezoidIconToUp {
+	0% {
+		transform: rotateX(180deg) scaleX(1.45);
+	}
+	50% {
+		transform: rotateX(90deg) scaleX(1.45);
+	}
+	100% {
+		transform: rotateX(0deg) scaleX(1.45);
+	}
+}
+
+.toggle:checked ~ .trapezoid .trapezoidIcon {
+	animation: trapezoidIconToDown 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.toggle:not(:checked) ~ .trapezoid .trapezoidIcon {
+	animation: trapezoidIconToUp 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.toggle:checked ~ .trapezoid {
+	top: 0px;
+}
+
+@media (max-width: 700px) {
+	.nav {
+		width: 100%;
+		left: 0;
+		transform: none;
+	}
+}
+
+@media (max-width: 400px) {
+	.nav {
+		width: 310px;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+
+	.container {
+		padding: 0 16px;
+		justify-content: flex-end;
+	}
+
+	.brandTitle {
+		display: none;
+	}
+
+	.links {
+		width: 278px;
+		flex: 0 0 278px;
+	}
+}

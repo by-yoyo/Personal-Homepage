@@ -1,0 +1,256 @@
+.footer {
+	position: fixed;
+	inset: 0;
+	z-index: 10;
+	pointer-events: none;
+}
+
+.actionWrap {
+	position: fixed;
+	right: 25px;
+	bottom: 25px;
+	pointer-events: auto;
+	width: 40px;
+	height: 40px;
+}
+
+.mainBtn {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: 40px;
+	height: 40px;
+	border-radius: 10px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--theme-text);
+	background: var(--theme-surface-bg);
+	border: 1px solid var(--theme-surface-border);
+	-webkit-backdrop-filter: blur(var(--theme-blur-footer));
+	backdrop-filter: blur(var(--theme-blur-footer));
+	cursor: pointer;
+	z-index: 2;
+}
+
+.mainIcon {
+	display: inline-flex;
+}
+
+.mainIconSpinLeft {
+	display: inline-flex;
+	transform-origin: center;
+	animation-name: spinLeft360;
+	animation-duration: var(--spin-duration, 970ms);
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: 1;
+}
+
+.mainIconSpinRight {
+	display: inline-flex;
+	transform-origin: center;
+	animation-name: spinRight180;
+	animation-duration: var(--spin-duration, 420ms);
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: 1;
+}
+
+@keyframes spinLeft360 {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(-360deg);
+	}
+}
+@keyframes spinRight180 {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(180deg);
+	}
+}
+
+.subBtn {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 30px;
+	height: 30px;
+	border-radius: 11px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--theme-surface-bg);
+	-webkit-backdrop-filter: blur(var(--theme-blur-footer));
+	backdrop-filter: blur(var(--theme-blur-footer));
+	color: var(--theme-text);
+	border: 1px solid var(--theme-surface-border);
+	cursor: pointer;
+	pointer-events: none;
+	opacity: 0;
+	/* 收起动画打断时：footer.tsx 会把“当前位置 transform/opacity”等写入这些 CSS 变量 */
+	--from-x: -15px;
+	--from-y: -15px;
+	--from-scale: 0.45;
+	--from-opacity: 0;
+	--from-pointer-events: none;
+	z-index: 1;
+}
+
+.subBtn:hover {
+	background: var(--theme-surface-bg-hover);
+}
+
+/* 子按钮位置由 keyframes 控制；closed 基础态 transform 由 .sub1~.sub4 提供 */
+.sub1,
+.sub2,
+.sub3,
+.sub4 {
+	transform: translate(-15px, -15px) scale(0.45);
+}
+
+/* 小按钮弹出动画：
+   1) 最上面按钮（sub3）先从圆心滑动到目标点
+   2) 其余三个按钮再沿弧线滑动到自己的点 */
+@keyframes sub3In {
+	0% {
+		transform: translate(-15px, -15px) scale(0.45);
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	12% {
+		opacity: 1;
+		pointer-events: auto;
+		transform: translate(-15px, -15px) scale(0.55);
+	}
+
+	45% {
+		transform: translate(0px, -55px) scale(0.92);
+		opacity: 1;
+	}
+
+	70% {
+		transform: translate(0px, -92px) scale(1.02);
+		opacity: 1;
+	}
+
+	100% {
+		transform: translate(0px, -80px) scale(1);
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+@keyframes sub1ArcIn {
+	0% {
+		transform: translate(0px, -80px) scale(0.45);
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	15% {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	50% {
+		transform: translate(-55px, -55px) scale(0.8);
+	}
+
+	100% {
+		transform: translate(-80px, 0px) scale(1);
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+@keyframes sub2ArcIn {
+	0% {
+		transform: translate(0px, -80px) scale(0.45);
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	15% {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	45% {
+		transform: translate(-55px, -60px) scale(0.82);
+	}
+
+	100% {
+		transform: translate(-69px, -40px) scale(1);
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+@keyframes sub4ArcIn {
+	0% {
+		transform: translate(0px, -80px) scale(0.45);
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	15% {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	45% {
+		transform: translate(-25px, -78px) scale(0.82);
+	}
+
+	100% {
+		transform: translate(-40px, -69px) scale(1);
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+@keyframes subOut {
+	0% {
+		transform: translate(var(--from-x), var(--from-y)) scale(var(--from-scale));
+		opacity: var(--from-opacity);
+		pointer-events: var(--from-pointer-events);
+	}
+
+	70% {
+		transform: translate(-15px, -15px) scale(0.6);
+		opacity: calc(var(--from-opacity) * 0.95);
+	}
+
+	100% {
+		transform: translate(-15px, -15px) scale(0.45);
+		opacity: 0;
+		pointer-events: none;
+	}
+}
+
+.actionWrap[data-anim='opening'] .sub3 {
+	animation: sub3In 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.actionWrap[data-anim='opening'] .sub1 {
+	animation: sub1ArcIn 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 450ms both;
+}
+
+.actionWrap[data-anim='opening'] .sub2 {
+	animation: sub2ArcIn 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 500ms both;
+}
+
+.actionWrap[data-anim='opening'] .sub4 {
+	animation: sub4ArcIn 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 550ms both;
+}
+
+.actionWrap[data-anim='closing'] .sub1,
+.actionWrap[data-anim='closing'] .sub2,
+.actionWrap[data-anim='closing'] .sub3,
+.actionWrap[data-anim='closing'] .sub4 {
+	animation: subOut 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
