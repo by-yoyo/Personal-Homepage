@@ -67,3 +67,30 @@ button[data-bg-refresh="true"][disabled] {
 	cursor: not-allowed;
 	filter: grayscale(0.2);
 }
+
+/* 应用滚动容器：集中自定义滚动条样式（昼夜色同步使用 --theme-*） */
+.app-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: var(--theme-text-muted) transparent;
+	-webkit-overflow-scrolling: touch;
+	touch-action: pan-y;
+}
+
+.app-scrollbar::-webkit-scrollbar {
+	width: 10px;
+}
+
+.app-scrollbar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.app-scrollbar::-webkit-scrollbar-thumb {
+	background-color: color-mix(in srgb, var(--theme-text-muted) 70%, transparent);
+	border: 2px solid transparent;
+	background-clip: padding-box;
+	border-radius: 999px;
+}
+
+.app-scrollbar::-webkit-scrollbar-thumb:hover {
+	background-color: color-mix(in srgb, var(--theme-text-muted) 88%, transparent);
+}
