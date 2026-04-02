@@ -32,8 +32,11 @@ export default async function RootLayout({
 }>) {
 	const { language } = await params;
 	const locale: Locale = isValidLocale(language) ? language : defaultLocale;
-	const dictionary = await getDictionary(locale);
-	const cookieStore = await cookies();
+	// 并行读取字典与 cookie，减少 RootLayout 的等待时间
+	const [dictionary, cookieStore] = await Promise.all([
+		getDictionary(locale),
+		cookies(),
+	]);
 	const theme = cookieStore.get('theme')?.value;
 	const backgroundMode = cookieStore.get('background-mode')?.value;
 	const htmlClassName = theme === 'dark' ? 'dark' : undefined;

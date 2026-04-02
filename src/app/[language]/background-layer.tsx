@@ -1,7 +1,7 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import ThreeScene from '@/components/threescene';
 import styles from './background.module.css';
 import {
 	BACKGROUND_MODE_IMAGE,
@@ -12,6 +12,13 @@ import {
 	BACKGROUND_TOGGLE_EVENT,
 	type BackgroundMode,
 } from './ui-state';
+
+// ThreeScene 属于重量级依赖（Three.js），按需加载：
+// 当用户选择 "scene" 背景模式时才会下载并渲染，减少首屏包体积。
+const ThreeScene = dynamic(() => import('@/components/threescene'), {
+	ssr: false,
+	loading: () => null,
+});
 
 export default function BackgroundLayer({
 	initialMode,
