@@ -33,6 +33,8 @@ export default async function RepoDetailPage({ params }: PageProps) {
 	const title = zh ? '仓库详情' : 'Repository details';
 	const backLabel = zh ? '返回 Profile' : 'Back to profile';
 	const openOnGithub = zh ? '在 GitHub 打开' : 'Open on GitHub';
+	const booleanLabel = (v: boolean) => (zh ? (v ? '是' : '否') : v ? 'Yes' : 'No');
+	const emptyLicenseLabel = zh ? '此仓库还没有使用协议' : 'This repository does not have a license yet.';
 
 	const notFound = zh
 		? '未找到该仓库或无法获取详情。'
@@ -103,10 +105,18 @@ export default async function RepoDetailPage({ params }: PageProps) {
 							<div className={styles.metaItem}>
 								<div className={styles.metaLabel}>{zh ? '许可证' : 'License'}</div>
 								<div className={styles.metaValue}>
-									{detail.license?.spdx_id ||
-										detail.license?.name ||
-										detail.license?.key ||
-										'—'}
+									{(() => {
+										const lic = detail.license;
+										const key = lic?.key?.trim() ?? '';
+										const name = lic?.name?.trim() ?? '';
+										const spdx = lic?.spdx_id?.trim() ?? '';
+										if (!key && !name && !spdx) return emptyLicenseLabel;
+										const parts: string[] = [];
+										if (spdx) parts.push(spdx);
+										if (name && name !== spdx) parts.push(name);
+										if (!spdx && key) parts.push(key);
+										return parts.join(' · ');
+									})()}
 								</div>
 							</div>
 							<div className={styles.metaItem}>
@@ -120,6 +130,66 @@ export default async function RepoDetailPage({ params }: PageProps) {
 								<div className={styles.metaValue}>
 									{formatRepoDate(detail.updated_at, locale)}
 								</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? '最近推送' : 'Pushed'}</div>
+								<div className={styles.metaValue}>
+									{formatRepoDate(detail.pushed_at, locale)}
+								</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? '订阅者' : 'Watchers'}</div>
+								<div className={styles.metaValue}>{detail.watchers_count}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? '仓库大小' : 'Size'}</div>
+								<div className={styles.metaValue}>{detail.size}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? '是否私有' : 'Private'}</div>
+								<div className={styles.metaValue}>{booleanLabel(detail.private)}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? '是否为 Fork' : 'Fork'}</div>
+								<div className={styles.metaValue}>{booleanLabel(detail.fork)}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? '是否归档' : 'Archived'}</div>
+								<div className={styles.metaValue}>{booleanLabel(detail.archived)}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? '是否禁用' : 'Disabled'}</div>
+								<div className={styles.metaValue}>{booleanLabel(detail.disabled)}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? '有 Issues' : 'Has issues'}</div>
+								<div className={styles.metaValue}>{booleanLabel(detail.has_issues)}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>
+									{zh ? '有 Projects' : 'Has projects'}
+								</div>
+								<div className={styles.metaValue}>{booleanLabel(detail.has_projects)}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? '有 Wiki' : 'Has wiki'}</div>
+								<div className={styles.metaValue}>{booleanLabel(detail.has_wiki)}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? 'Git URL' : 'Git URL'}</div>
+								<div className={styles.metaValue}>{detail.git_url || '—'}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? 'SSH URL' : 'SSH URL'}</div>
+								<div className={styles.metaValue}>{detail.ssh_url || '—'}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? 'Clone URL' : 'Clone URL'}</div>
+								<div className={styles.metaValue}>{detail.clone_url || '—'}</div>
+							</div>
+							<div className={styles.metaItem}>
+								<div className={styles.metaLabel}>{zh ? '主页' : 'Homepage'}</div>
+								<div className={styles.metaValue}>{detail.homepage || '—'}</div>
 							</div>
 						</div>
 
