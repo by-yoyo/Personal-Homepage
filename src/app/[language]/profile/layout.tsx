@@ -6,6 +6,7 @@ import {
 	isValidLocale,
 	type Locale,
 } from '@/dictionaries';
+import { RepoModalProvider } from './repo-modal-context';
 import LeftTopCard from './left-top/card';
 import LeftBottomCard from './left-bottom/card';
 import RightTopCard from './right-top/card';
@@ -39,20 +40,41 @@ export default async function RootLayout({
 	const { language } = await params;
 	const locale: Locale = isValidLocale(language) ? language : defaultLocale;
 
-	return (
-		<div className={styles.profileLayout}>
-			<div className={styles.profileGrid}>
-				<div className={styles.leftColumn}>
-					<LeftTopCard locale={locale} />
-					<LeftBottomCard locale={locale} />
-				</div>
-				<div className={styles.rightColumn}>
-					<RightTopCard locale={locale} />
-					<RightBottomCard locale={locale} />
-				</div>
-			</div>
+	const modalLabels =
+		locale === 'zh'
+			? {
+					modalTitle: '仓库详情',
+					openOnGithub: '在 GitHub 打开',
+					noDesc: '无描述',
+					created: '创建于',
+					updated: '更新于',
+					pushed: '推送于',
+				}
+			: {
+					modalTitle: 'Repository details',
+					openOnGithub: 'Open on GitHub',
+					noDesc: 'No description',
+					created: 'Created ',
+					updated: 'Updated ',
+					pushed: 'Pushed ',
+				};
 
-			{children}
-		</div>
+	return (
+		<RepoModalProvider locale={locale} labels={modalLabels}>
+			<div className={styles.profileLayout}>
+				<div className={styles.profileGrid}>
+					<div className={styles.leftColumn}>
+						<LeftTopCard locale={locale} />
+						<LeftBottomCard locale={locale} />
+					</div>
+					<div className={styles.rightColumn}>
+						<RightTopCard locale={locale} />
+						<RightBottomCard locale={locale} />
+					</div>
+				</div>
+
+				{children}
+			</div>
+		</RepoModalProvider>
 	);
 }

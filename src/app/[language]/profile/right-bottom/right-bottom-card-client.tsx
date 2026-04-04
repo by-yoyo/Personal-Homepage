@@ -2,16 +2,16 @@
 
 import {
 	memo,
+	useCallback,
 	useEffect,
 	useId,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import type { Locale } from '@/dictionaries';
 import type { GithubRepoSummary } from '@/lib/github';
+import { useRepoModal } from '../repo-modal-context';
 import { cn } from '@/lib/utils';
 import {
 	buildCenteredPageStrip,
@@ -215,7 +215,7 @@ const RepoEntry = memo(function RepoEntry({
 	locale: Locale;
 	labels: RightBottomRepoLabels;
 }) {
-	const router = useRouter();
+	const { openRepoModal } = useRepoModal();
 	const lic = licenseLabel(repo.license);
 	const lang = repo.language?.trim() ?? '';
 	const hasMetaChips = Boolean(lang || lic);
@@ -224,32 +224,31 @@ const RepoEntry = memo(function RepoEntry({
 	const createdAt = formatRepoDate(repo.created_at, locale);
 	const pushedAt = formatRepoDate(repo.pushed_at, locale);
 	const updatedTitle = `${labels.updated}${updatedAt}`;
-	const repoHref = `/${locale}/repo/${encodeURIComponent(repo.name)}`;
-	const prefetchRepo = () => router.prefetch(repoHref);
+
+	const handleClick = useCallback(() => {
+		openRepoModal(repo);
+	}, [openRepoModal, repo]);
 
 	return (
 		<li className={styles.repoItem}>
 			<div className={styles.repoTitleRow}>
 				<h3 className={styles.repoName}>
-					<Link
-						href={repoHref}
-						prefetch
+					<button
+						type="button"
 						className={styles.repoNameLink}
-						onMouseEnter={prefetchRepo}
-						onFocus={prefetchRepo}
+						onClick={handleClick}
 						aria-label={
 							locale === 'zh'
-								? `打开仓库详情：${repo.name}`
-								: `Open repository details: ${repo.name}`
+								? `查看仓库详情：${repo.name}`
+								: `View repository details: ${repo.name}`
 						}>
 						{repo.name}
-					</Link>
+					</button>
 				</h3>
 				<div className={styles.repoUpdatedInline} title={updatedTitle}>
 					<time
 						className={styles.repoUpdatedTime}
-						dateTime={repo.updated_at}
-					>
+						dateTime={repo.updated_at}>
 						{labels.updated}
 						{updatedAt}
 					</time>
@@ -270,8 +269,7 @@ const RepoEntry = memo(function RepoEntry({
 				<div className={styles.repoDatesRow}>
 					<time
 						className={styles.repoDatesSegment}
-						dateTime={repo.created_at}
-					>
+						dateTime={repo.created_at}>
 						{labels.created}
 						{createdAt}
 					</time>
@@ -280,8 +278,7 @@ const RepoEntry = memo(function RepoEntry({
 					</span>
 					<time
 						className={styles.repoDatesSegment}
-						dateTime={repo.pushed_at}
-					>
+						dateTime={repo.pushed_at}>
 						{labels.pushed}
 						{pushedAt}
 					</time>
