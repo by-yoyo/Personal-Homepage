@@ -337,6 +337,44 @@ export async function fetchSiteGithubUserRepos(
 	return username ? fetchGithubUserRepos(username, init) : [];
 }
 
+export type GithubRepoEvent = {
+	id: string;
+	type: string;
+	created_at: string;
+	actor: {
+		login: string;
+		avatar_url: string;
+	};
+};
+
+function isGithubRepoEvent(x: unknown): x is GithubRepoEvent {
+	if (typeof x !== 'object' || x === null) return false;
+	const o = x as Record<string, unknown>;
+	const actor = o.actor;
+	if (typeof actor !== 'object' || actor === null) return false;
+	const a = actor as Record<string, unknown>;
+	return (
+		typeof o.id === 'string' &&
+		typeof o.type === 'string' &&
+		typeof o.created_at === 'string' &&
+		typeof a.login === 'string' &&
+		typeof a.avatar_url === 'string'
+	);
+}
+
+export async function fetchGithubRepoEvents(
+	owner: string,
+	repo: string,
+	init?: RequestInit,
+): Promise<GithubRepoEvent[]> {
+	const url = `${GITHUB_API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/events?per_page=10`;
+	const res = await fetch(url, githubFetchInitEvents(init));
+	if (!res.ok) return [];
+	const json: unknown = await res.json();
+	if (!Array.isArray(json)) return [];
+	return json.filter(isGithubRepoEvent);
+}
+
 export type GithubPublicEventSummary = {
 	type: string;
 	name: string;

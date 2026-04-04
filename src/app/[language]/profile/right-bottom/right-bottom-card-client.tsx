@@ -230,20 +230,25 @@ const RepoEntry = memo(function RepoEntry({
 	}, [openRepoModal, repo]);
 
 	return (
-		<li className={styles.repoItem}>
+		<li
+			className={styles.repoItem}
+			onClick={handleClick}
+			role="button"
+			tabIndex={0}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					handleClick();
+				}
+			}}
+			aria-label={
+				locale === 'zh'
+					? `查看仓库详情：${repo.name}`
+					: `View repository details: ${repo.name}`
+			}>
 			<div className={styles.repoTitleRow}>
 				<h3 className={styles.repoName}>
-					<button
-						type="button"
-						className={styles.repoNameLink}
-						onClick={handleClick}
-						aria-label={
-							locale === 'zh'
-								? `查看仓库详情：${repo.name}`
-								: `View repository details: ${repo.name}`
-						}>
-						{repo.name}
-					</button>
+					<span className={styles.repoNameText}>{repo.name}</span>
 				</h3>
 				<div className={styles.repoUpdatedInline} title={updatedTitle}>
 					<time

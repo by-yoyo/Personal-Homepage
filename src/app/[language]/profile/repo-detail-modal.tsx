@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import type { GithubRepoSummary } from '@/lib/github';
+import type { GithubRepoSummary, GithubRepoEvent } from '@/lib/github';
 import type { Locale } from '@/dictionaries';
 import styles from './repo-detail-modal.module.css';
 
 export type RepoDetailModalProps = {
 	repo: GithubRepoSummary;
+	events: GithubRepoEvent[];
 	locale: Locale;
 	labels: {
 		modalTitle: string;
@@ -15,6 +16,7 @@ export type RepoDetailModalProps = {
 		created: string;
 		updated: string;
 		pushed: string;
+		eventsTitle: string;
 	};
 	onClose: () => void;
 };
@@ -30,7 +32,47 @@ function formatRepoDate(iso: string, locale: Locale): string {
 	});
 }
 
-export function RepoDetailModal({ repo, locale, labels, onClose }: RepoDetailModalProps) {
+function formatEventDate(iso: string, locale: Locale): string {
+	if (!iso) return '—';
+	const d = new Date(iso);
+	if (Number.isNaN(d.getTime())) return iso;
+	return d.toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US', {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	});
+}
+
+function getEventTypeLabel(type: string, locale: Locale): string {
+	if (locale === 'zh') {
+		const labels: Record<string, string> = {
+			PushEvent: '推送',
+			WatchEvent: '关注',
+			CreateEvent: '创建',
+			DeleteEvent: '删除',
+			ForkEvent: 'Fork',
+			IssuesEvent: 'Issue',
+			PullRequestEvent: 'Pull Request',
+			ReleaseEvent: '发布',
+		};
+		return labels[type] || type;
+	}
+	const labels: Record<string, string> = {
+		PushEvent: 'Push',
+		WatchEvent: 'Watch',
+		CreateEvent: 'Create',
+		DeleteEvent: 'Delete',
+		ForkEvent: 'Fork',
+		IssuesEvent: 'Issue',
+		PullRequestEvent: 'Pull Request',
+		ReleaseEvent: 'Release',
+	};
+	return labels[type] || type;
+}
+
+export function RepoDetailModal({ repo, events, locale, labels, onClose }: RepoDetailModalProps) {
 	const overlayRef = useRef<HTMLDivElement>(null);
 	const zh = locale === 'zh';
 
@@ -152,6 +194,22 @@ export function RepoDetailModal({ repo, locale, labels, onClose }: RepoDetailMod
 							))}
 						</div>
 					) : null}
+
+					{events.length > 0 && (
+						<div className={styles.eventsSection}>
+							<h4 className={styles.eventsTitle}>{labels.eventsTitle}</h4>
+							<ul className={styles.eventsList}>
+								{events.map((event) => (
+									<li key={event.id} className={styles.eventItem}>
+										<time className={styles.eventTime} dateTime={event.created_at}>
+											{formatEventDate(event.created_at, locale)}
+										</time>
+										<div className={styles.eventType}>{getEventTypeLabel(event.type, locale)}</div>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

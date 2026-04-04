@@ -5,9 +5,11 @@ import {
 	useContext,
 	useState,
 	useCallback,
+	useEffect,
 	type ReactNode,
 } from 'react';
-import type { GithubRepoSummary } from '@/lib/github';
+import type { GithubRepoSummary, GithubRepoEvent } from '@/lib/github';
+import { fetchGithubRepoEvents } from '@/lib/github';
 import type { Locale } from '@/dictionaries';
 import { RepoDetailModal } from './repo-detail-modal';
 
@@ -35,6 +37,8 @@ type RepoModalLabels = {
 	created: string;
 	updated: string;
 	pushed: string;
+	eventsTitle: string;
+	noEvents: string;
 };
 
 export function RepoModalProvider({
@@ -48,16 +52,40 @@ export function RepoModalProvider({
 }) {
 	const [selectedRepo, setSelectedRepo] = useState<GithubRepoSummary | null>(null);
 	const [isOpen, setIsOpen] = useState(false);
+	const [events, setEvents] = useState<GithubRepoEvent[]>([]);
 
 	const openRepoModal = useCallback((repo: GithubRepoSummary) => {
 		setSelectedRepo(repo);
 		setIsOpen(true);
+		setEvents([]);
 	}, []);
 
 	const closeRepoModal = useCallback(() => {
 		setIsOpen(false);
-		setTimeout(() => setSelectedRepo(null), 200);
+		setTimeout(() => {
+			setSelectedRepo(null);
+			setEvents([]);
+		}, 200);
 	}, []);
+
+	// Fetch events when repo is selected
+	useEffect(() => {
+		if (!selectedRepo) return;
+
+		const parts = selectedRepo.full_name.split('/');
+		if (parts.length !== 2) return;
+
+		const [owner, repo] = parts;
+		let cancelled = false;
+
+		fetchGithubRepoEvents(owner, repo).then((data) => {
+			if (!cancelled) setEvents(data);
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [selectedRepo]);
 
 	return (
 		<RepoModalContext.Provider
@@ -66,6 +94,7 @@ export function RepoModalProvider({
 			{isOpen && selectedRepo && (
 				<RepoDetailModal
 					repo={selectedRepo}
+					events={events}
 					locale={locale}
 					labels={labels}
 					onClose={closeRepoModal}
