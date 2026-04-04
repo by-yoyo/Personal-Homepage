@@ -142,10 +142,6 @@ export default async function RepoDetailPage({ params }: PageProps) {
 								<div className={styles.metaValue}>{detail.watchers_count}</div>
 							</div>
 							<div className={styles.metaItem}>
-								<div className={styles.metaLabel}>{zh ? '仓库大小' : 'Size'}</div>
-								<div className={styles.metaValue}>{detail.size}</div>
-							</div>
-							<div className={styles.metaItem}>
 								<div className={styles.metaLabel}>{zh ? '是否私有' : 'Private'}</div>
 								<div className={styles.metaValue}>{booleanLabel(detail.private)}</div>
 							</div>

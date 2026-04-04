@@ -7,9 +7,6 @@ import styles from './page.module.css';
 type ActivityChartProps = {
 	points: ActivityMonthPoint[];
 	chartTitle: string;
-	/** 选中月份下标 0–11，与下方列表联动 */
-	selectedMonthIndex: number;
-	onMonthSelect: (monthIndex: number) => void;
 };
 
 const VIEW_W = 480;
@@ -25,12 +22,7 @@ const X_LABEL_ROTATE = 32;
 /** 月份锚点 y（越小越靠上） */
 const X_LABEL_ANCHOR_Y = VIEW_H - 22;
 
-export function ActivityLineChart({
-	points,
-	chartTitle,
-	selectedMonthIndex,
-	onMonthSelect,
-}: ActivityChartProps) {
+export function ActivityLineChart({ points, chartTitle }: ActivityChartProps) {
 	const [hovered, setHovered] = useState<number | null>(null);
 	const n = points.length;
 	const counts = points.map((p) => p.count);
@@ -107,10 +99,9 @@ export function ActivityLineChart({
 							aria-label={`${p.label}: ${p.count}`}
 							onMouseEnter={() => setHovered(i)}
 							onMouseLeave={() => setHovered(null)}
-							onClick={() => onMonthSelect(i)}
 						>
 							{/*
-							 * 热区仅限绘图区（plotH），不包含底部月份文字，避免点到月份也切换选中。
+							 * 热区仅限绘图区（plotH），不包含底部月份文字，避免悬停月份标签也触发提示。
 							 */}
 							<rect
 								className={styles.chartHit}
@@ -146,7 +137,7 @@ export function ActivityLineChart({
 								</g>
 							)}
 							<circle
-								className={`${dotClassForVariant(nodeVariants[i]!)} ${selectedMonthIndex === i ? styles.chartDotSelected : ''}`}
+								className={dotClassForVariant(nodeVariants[i]!)}
 								cx={xs[i]}
 								cy={ys[i]}
 								r={3}

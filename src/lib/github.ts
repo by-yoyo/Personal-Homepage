@@ -2,8 +2,11 @@
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
-/** Next.js Data Cache：3600s 重新验证 */
+/** Next.js Data Cache：3600s 重新验证（用户/仓库等相对稳态数据） */
 const GITHUB_FETCH_REVALIDATE_SEC = 3600;
+
+/** Events 流变化快；单独用较短 revalidate，减轻与 GitHub 实时不一致的观感 */
+const GITHUB_EVENTS_FETCH_REVALIDATE_SEC = 120;
 
 const GITHUB_USER_REPOS_PER_PAGE_MAX = 100;
 const GITHUB_USER_EVENTS_PER_PAGE_MAX = 100;
@@ -24,6 +27,18 @@ function githubFetchInit(
 		...init,
 		headers: h,
 		next: { revalidate: GITHUB_FETCH_REVALIDATE_SEC },
+	};
+}
+
+function githubFetchInitEvents(
+	init?: RequestInit,
+): RequestInit & { next: { revalidate: number } } {
+	const h = new Headers(init?.headers);
+	if (!h.has('Accept')) h.set('Accept', 'application/vnd.github+json');
+	return {
+		...init,
+		headers: h,
+		next: { revalidate: GITHUB_EVENTS_FETCH_REVALIDATE_SEC },
 	};
 }
 
@@ -329,7 +344,6 @@ export type GithubRepoDetail = GithubRepoSummary & {
 	archived: boolean;
 	disabled: boolean;
 	default_branch: string;
-	size: number;
 	has_issues: boolean;
 	has_projects: boolean;
 	has_wiki: boolean;
@@ -349,7 +363,6 @@ function pickGithubRepoDetail(data: unknown): GithubRepoDetail | null {
 		disabled: typeof o.disabled === 'boolean' ? o.disabled : false,
 		default_branch:
 			typeof o.default_branch === 'string' ? o.default_branch : 'main',
-		size: typeof o.size === 'number' ? o.size : Number(o.size ?? 0),
 		has_issues: typeof o.has_issues === 'boolean' ? o.has_issues : false,
 		has_projects:
 			typeof o.has_projects === 'boolean' ? o.has_projects : false,
@@ -458,19 +471,35 @@ function isGithubPublicEvent(x: unknown): x is GithubPublicEvent {
 	);
 }
 
+async function fetchGithubJsonArrayEvents(
+	url: string,
+	init?: RequestInit,
+): Promise<unknown[]> {
+	const res = await fetch(url, githubFetchInitEvents(init));
+	if (!res.ok) return [];
+	const json: unknown = await res.json();
+	return Array.isArray(json) ? json : [];
+}
+
 async function fetchGithubUserEventsPage(
 	username: string,
 	page: number,
 	init?: RequestInit,
 	perPage: number = GITHUB_USER_EVENTS_PER_PAGE_MAX,
 ): Promise<GithubPublicEvent[]> {
-	const raw = await fetchGithubJsonArray(
+	const raw = await fetchGithubJsonArrayEvents(
 		githubUserEventsApiUrl(username, page, perPage),
 		init,
 	);
 	return raw.filter(isGithubPublicEvent);
 }
 
+/**
+ * 拉取用户收到的公开事件摘要（分页直到某一页为空）。
+ *
+ * 注意：GitHub `GET /users/{username}/events` 只提供**最近一段时间内**的公开事件（数量有上限），
+ * 不能当作完整历史。需要跨年/全年贡献展示时应使用 GraphQL contributions 等接口。
+ */
 export async function fetchSiteGithubUserEventSummariesAll(
 	init?: RequestInit,
 ): Promise<GithubPublicEventSummary[]> {

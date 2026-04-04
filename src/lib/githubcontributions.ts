@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { GITHUB_PROFILE_URL, usernameFromGithubProfileUrl } from '@/lib/github';
 import type { Locale } from '@/dictionaries';
 
@@ -164,100 +165,104 @@ function sumContributionTotals(t: ContributionsCollectionTotals) {
 	);
 }
 
-export async function fetchGithubContributionsSummary(
-	_locale: Locale,
-	options?: { yearsBack?: number },
-): Promise<GithubContributionsSummary | null> {
-	const username = usernameFromGithubProfileUrl(GITHUB_PROFILE_URL);
-	if (!username) return null;
+export const fetchGithubContributionsSummary = cache(
+	async function fetchGithubContributionsSummary(
+		_locale: Locale,
+		options?: { yearsBack?: number },
+	): Promise<GithubContributionsSummary | null> {
+		const username = usernameFromGithubProfileUrl(GITHUB_PROFILE_URL);
+		if (!username) return null;
 
-	const yearsBack = Math.max(1, Math.min(6, options?.yearsBack ?? 4)); // 含当前年：yearsBack+1
-	const now = new Date();
-	const currentYear = now.getUTCFullYear();
+		const yearsBack = Math.max(1, Math.min(6, options?.yearsBack ?? 4)); // 含当前年：yearsBack+1
+		const now = new Date();
+		const currentYear = now.getUTCFullYear();
 
-	try {
-		const data = await githubGraphqlRequest<{
-			user: {
-				contributionsCollection: {
-					totalCommitContributions: number;
-					totalIssueContributions: number;
-					totalPullRequestContributions: number;
-					totalPullRequestReviewContributions: number;
-					contributionCalendar: ContributionsCalendar;
-				};
-			} | null;
-		}>(QUERY_SUMMARY, { login: username });
-
-		const collection = data?.user?.contributionsCollection;
-		if (!collection) return null;
-
-		const totalsAllTime = sumContributionTotals(collection as unknown as ContributionsCollectionTotals);
-		const totalLastYear = num(collection.contributionCalendar.totalContributions);
-
-		const calendarDays: { date: string; count: number }[] = [];
-		for (const w of collection.contributionCalendar.weeks) {
-			for (const d of w.contributionDays) {
-				calendarDays.push({ date: d.date, count: num(d.contributionCount) });
-			}
-		}
-
-		const { currentStreak, longestStreak } = computeStreaks(calendarDays);
-
-		const yearResults: { year: number; count: number }[] = [];
-		const yearCalendars: {
-			year: number;
-			calendarDays: { date: string; count: number }[];
-		}[] = [];
-		const yearsToFetch = [];
-		for (let i = yearsBack; i >= 0; i--) yearsToFetch.push(currentYear - i);
-
-		for (const y of yearsToFetch) {
-			// DateTime: 使用 UTC，to 取「下一年起点」，避免边界问题。
-			const from = new Date(Date.UTC(y, 0, 1, 0, 0, 0));
-			const to = new Date(Date.UTC(y + 1, 0, 1, 0, 0, 0));
-
-			const yd = await githubGraphqlRequest<{
+		try {
+			const data = await githubGraphqlRequest<{
 				user: {
-					contributionsCollection: ContributionsCollectionRange;
+					contributionsCollection: {
+						totalCommitContributions: number;
+						totalIssueContributions: number;
+						totalPullRequestContributions: number;
+						totalPullRequestReviewContributions: number;
+						contributionCalendar: ContributionsCalendar;
+					};
 				} | null;
-			}>(QUERY_YEAR_TOTALS, {
-				login: username,
-				from: from.toISOString(),
-				to: to.toISOString(),
-			});
+			}>(QUERY_SUMMARY, { login: username });
 
-			const totals = yd?.user?.contributionsCollection;
-			const count = totals ? sumContributionTotals(totals) : 0;
-			yearResults.push({ year: y, count });
+			const collection = data?.user?.contributionsCollection;
+			if (!collection) return null;
 
-			const yCalendarDays: { date: string; count: number }[] = [];
-			if (totals?.contributionCalendar?.weeks) {
-				for (const w of totals.contributionCalendar.weeks) {
-					for (const d of w.contributionDays) {
-						yCalendarDays.push({ date: d.date, count: num(d.contributionCount) });
-					}
+			const totalsAllTime = sumContributionTotals(
+				collection as unknown as ContributionsCollectionTotals,
+			);
+			const totalLastYear = num(collection.contributionCalendar.totalContributions);
+
+			const calendarDays: { date: string; count: number }[] = [];
+			for (const w of collection.contributionCalendar.weeks) {
+				for (const d of w.contributionDays) {
+					calendarDays.push({ date: d.date, count: num(d.contributionCount) });
 				}
 			}
 
-			yearCalendars.push({ year: y, calendarDays: yCalendarDays });
+			const { currentStreak, longestStreak } = computeStreaks(calendarDays);
+
+			const yearResults: { year: number; count: number }[] = [];
+			const yearCalendars: {
+				year: number;
+				calendarDays: { date: string; count: number }[];
+			}[] = [];
+			const yearsToFetch = [];
+			for (let i = yearsBack; i >= 0; i--) yearsToFetch.push(currentYear - i);
+
+			for (const y of yearsToFetch) {
+				// DateTime: 使用 UTC，to 取「下一年起点」，避免边界问题。
+				const from = new Date(Date.UTC(y, 0, 1, 0, 0, 0));
+				const to = new Date(Date.UTC(y + 1, 0, 1, 0, 0, 0));
+
+				const yd = await githubGraphqlRequest<{
+					user: {
+						contributionsCollection: ContributionsCollectionRange;
+					} | null;
+				}>(QUERY_YEAR_TOTALS, {
+					login: username,
+					from: from.toISOString(),
+					to: to.toISOString(),
+				});
+
+				const totals = yd?.user?.contributionsCollection;
+				const count = totals ? sumContributionTotals(totals) : 0;
+				yearResults.push({ year: y, count });
+
+				const yCalendarDays: { date: string; count: number }[] = [];
+				if (totals?.contributionCalendar?.weeks) {
+					for (const w of totals.contributionCalendar.weeks) {
+						for (const d of w.contributionDays) {
+							yCalendarDays.push({ date: d.date, count: num(d.contributionCount) });
+						}
+					}
+				}
+
+				yearCalendars.push({ year: y, calendarDays: yCalendarDays });
+			}
+
+			// 按从新到旧展示（更像 GitHub）
+			yearResults.sort((a, b) => b.year - a.year);
+
+			return {
+				totalContributionsAllTime: totalsAllTime,
+				totalContributionsLastYear: totalLastYear,
+				currentStreak,
+				longestStreak,
+				calendarDays,
+				yearCalendars,
+				years: yearResults,
+			};
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.warn('[github-contributions]', e);
+			return null;
 		}
-
-		// 按从新到旧展示（更像 GitHub）
-		yearResults.sort((a, b) => b.year - a.year);
-
-		return {
-			totalContributionsAllTime: totalsAllTime,
-			totalContributionsLastYear: totalLastYear,
-			currentStreak,
-			longestStreak,
-			calendarDays,
-			yearCalendars,
-			years: yearResults,
-		};
-	} catch (e) {
-		// eslint-disable-next-line no-console
-		console.warn('[github-contributions]', e);
-		return null;
-	}
-}
+	},
+);
 

@@ -1,8 +1,9 @@
-import type { GithubPublicEventSummary } from '@/lib/github';
 import type { Locale } from '@/dictionaries';
 
+export type ContributionDay = { date: string; count: number };
+
 export type ActivityMonthPoint = {
-	/** `YYYY-MM`，当年公历月（UTC，与 `created_at` 对齐） */
+	/** `YYYY-MM`，当年公历月（UTC，与贡献日历日期一致） */
 	key: string;
 	/** 一月…十二月 / Jan…Dec */
 	label: string;
@@ -26,16 +27,6 @@ const ZH_MONTH_NAMES = [
 	'十二月',
 ] as const;
 
-function monthKeyUtc(d: Date): string {
-	return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
-}
-
-function parseEventMonthKey(iso: string): string | null {
-	const t = Date.parse(iso);
-	if (Number.isNaN(t)) return null;
-	return monthKeyUtc(new Date(t));
-}
-
 function calendarMonthLabel(month1To12: number, locale: Locale): string {
 	const m = Math.floor(month1To12);
 	if (m < 1 || m > 12) return String(month1To12);
@@ -45,42 +36,37 @@ function calendarMonthLabel(month1To12: number, locale: Locale): string {
 }
 
 /**
- * 当年公历 1–12 月；未到来的月份计数为 0。
- * 分桶与「当前日期」均按 UTC，与 GitHub `created_at`（Z）一致。
+ * 用 GraphQL 贡献日历的「按日」数据汇总为当年 12 个月（UTC）。
  */
-export function summarizeGithubEventsCurrentYear(
-	events: GithubPublicEventSummary[],
+export function summarizeContributionCalendarToActivityMonthPoints(
+	calendarDays: ContributionDay[],
 	options: { locale: Locale; refDate?: Date },
 ): ActivityMonthPoint[] {
 	const ref = options.refDate ?? new Date();
 	const year = ref.getUTCFullYear();
 	const currentMonth = ref.getUTCMonth() + 1;
 
-	const keys: string[] = [];
-	for (let m = 1; m <= 12; m++) {
-		keys.push(`${year}-${String(m).padStart(2, '0')}`);
-	}
+	const sums = new Array<number>(12).fill(0);
 
-	const counts = new Map<string, number>(keys.map((k) => [k, 0]));
-
-	for (const e of events) {
-		const k = parseEventMonthKey(e.created_at);
-		if (!k || !counts.has(k)) continue;
-		const monthNum = Number(k.split('-')[1]);
-		if (!Number.isFinite(monthNum)) continue;
-		/** 当年尚未到来的月份不计入（理论上不会有未来事件，仅显式约束） */
+	for (const day of calendarDays) {
+		const dateStr = day.date?.trim();
+		if (!dateStr) continue;
+		const t = Date.parse(`${dateStr}T12:00:00Z`);
+		if (Number.isNaN(t)) continue;
+		const d = new Date(t);
+		if (d.getUTCFullYear() !== year) continue;
+		const monthNum = d.getUTCMonth() + 1;
 		if (monthNum > currentMonth) continue;
-		counts.set(k, (counts.get(k) ?? 0) + 1);
+		sums[monthNum - 1]! += day.count;
 	}
 
-	return keys.map((key, i) => {
+	return Array.from({ length: 12 }, (_, i) => {
 		const monthNum = i + 1;
 		const isFuture = monthNum > currentMonth;
-		const c = isFuture ? 0 : (counts.get(key) ?? 0);
 		return {
-			key,
+			key: `${year}-${String(monthNum).padStart(2, '0')}`,
 			label: calendarMonthLabel(monthNum, options.locale),
-			count: c,
+			count: isFuture ? 0 : sums[i]!,
 			isFutureMonth: isFuture,
 		};
 	});

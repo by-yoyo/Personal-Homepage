@@ -29,61 +29,6 @@
 	min-width: 0;
 }
 
-.eventSection {
-	display: flex;
-	flex-direction: column;
-	gap: 0.35rem;
-	margin: 0;
-	padding: 0.65rem 0 0;
-	border-top: 1px solid var(--theme-surface-border);
-	min-width: 0;
-}
-
-.monthEventHeading {
-	margin: 0;
-	font-size: 0.8125rem;
-	font-weight: 600;
-	color: var(--theme-text);
-	letter-spacing: 0.02em;
-}
-
-.monthEventEmpty {
-	margin: 0;
-	font-size: 0.75rem;
-	color: var(--theme-text-muted);
-	line-height: 1.5;
-}
-
-.eventList {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	display: flex;
-	flex-direction: column;
-	gap: 0.25rem;
-	min-width: 0;
-	overflow: visible;
-}
-
-.eventRow {
-	margin: 0;
-	min-width: 0;
-}
-
-.eventLine {
-	display: block;
-	margin: 0;
-	padding: 0;
-	font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
-	font-size: 0.72rem;
-	line-height: 1.45;
-	color: var(--theme-text-muted);
-	overflow-wrap: anywhere;
-	word-break: break-word;
-	background: none;
-	border: none;
-}
-
 .chartWrap {
 	width: 100%;
 	min-width: 0;
@@ -163,7 +108,7 @@
 	fill: transparent;
 	stroke: none;
 	pointer-events: all;
-	cursor: pointer;
+	cursor: default;
 }
 
 .chartTooltip {
@@ -208,8 +153,4 @@
 
 .chartDotNeutral {
 	stroke: var(--theme-text-subtle);
-}
-
-.chartDotSelected {
-	filter: drop-shadow(0 0 4px currentColor);
 }
