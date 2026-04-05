@@ -90,14 +90,11 @@ async function githubGraphqlRequest<TData>(
 	query: string,
 	variables: Record<string, unknown>,
 ): Promise<TData> {
-	const token = process.env.GITHUB_TOKEN;
-
 	const res = await fetch(GITHUB_API_GRAPHQL, {
 		method: 'POST',
 		headers: {
 			'content-type': 'application/json',
 			accept: 'application/vnd.github+json',
-			...(token ? { authorization: `Bearer ${token}` } : null),
 		},
 		body: JSON.stringify({ query, variables }),
 		next: { revalidate: GITHUB_FETCH_REVALIDATE_SEC },
