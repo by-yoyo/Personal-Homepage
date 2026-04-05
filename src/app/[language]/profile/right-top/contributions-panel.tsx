@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import type { GithubContributionsSummary } from '@/lib/githubcontributions';
+import { localeToBCP47, type Locale } from '@/dictionaries';
 import styles from './page.module.css';
 
 type ContributionsLabels = {
@@ -16,8 +17,14 @@ type ContributionsLabels = {
 };
 
 type Props = {
+	locale: Locale;
 	summary: GithubContributionsSummary | null;
 	contributions: ContributionsLabels;
+	aria: {
+		panel: string;
+		calendarSvg: string;
+		streakStats: string;
+	};
 };
 
 function hasCjk(text: string): boolean {
@@ -47,8 +54,12 @@ function buildWeeks(calendarDays: { date: string; count: number }[]) {
 
 function renderCalendarSvg({
 	calendarDays,
+	locale,
+	calendarSvgAriaLabel,
 }: {
 	calendarDays: { date: string; count: number }[];
+	locale: Locale;
+	calendarSvgAriaLabel: string;
 }) {
 	const counts = calendarDays.map((d) => d.count);
 	const nonZeroCounts = counts.filter((c) => c > 0).sort((a, b) => a - b);
@@ -86,7 +97,7 @@ function renderCalendarSvg({
 	const bottomLabelH = 22;
 	const svgHeight = gridH + topLabelH + bottomLabelH;
 
-	const monthLabelFmt = new Intl.DateTimeFormat(undefined, {
+	const monthLabelFmt = new Intl.DateTimeFormat(localeToBCP47(locale), {
 		month: 'short',
 		timeZone: 'UTC',
 	});
@@ -153,7 +164,7 @@ function renderCalendarSvg({
 			role='img'
 			preserveAspectRatio='xMidYMid meet'
 			suppressHydrationWarning
-			aria-label='GitHub contributions calendar'>
+			aria-label={calendarSvgAriaLabel}>
 			{rects}
 			{(() => {
 				const topY = topLabelH - 6;
@@ -315,8 +326,10 @@ function renderYearBarsSvg({
 }
 
 export default function ContributionsPanel({
+	locale,
 	summary,
 	contributions,
+	aria,
 }: Props) {
 	const yearsDesc = useMemo(
 		() => summary?.years?.slice(0, 5) ?? [],
@@ -351,14 +364,14 @@ export default function ContributionsPanel({
 	}
 
 	return (
-		<div className={styles.contribWrap} aria-label='GitHub contributions'>
+		<div className={styles.contribWrap} aria-label={aria.panel}>
 			<h3 className={styles.contribTitle}>{contributions.title}</h3>
 
 			<div className={styles.calendarHeader} aria-label={calendarTitle}>
 				{calendarTitle}
 			</div>
 
-			<div className={styles.streakRow} aria-label='Streak stats'>
+			<div className={styles.streakRow} aria-label={aria.streakStats}>
 				<div className={styles.calendarTopStat}>
 					<div className={styles.statLabel}>{withColon(contributions.longestStreakLabel)}</div>
 					<div className={styles.statValue}>
@@ -382,7 +395,11 @@ export default function ContributionsPanel({
 							styles.calendarSwitch,
 							calendarAnimDir === 'forward' ? styles.calendarSwitchForward : styles.calendarSwitchBackward,
 						].join(' ')}>
-						{renderCalendarSvg({ calendarDays: selectedCalendar })}
+						{renderCalendarSvg({
+							calendarDays: selectedCalendar,
+							locale,
+							calendarSvgAriaLabel: aria.calendarSvg,
+						})}
 					</div>
 				</div>
 			) : (

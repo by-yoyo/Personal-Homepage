@@ -39,6 +39,21 @@ type RepoModalLabels = {
 	pushed: string;
 	eventsTitle: string;
 	noEvents: string;
+	close: string;
+	meta: {
+		language: string;
+		stars: string;
+		forks: string;
+		issues: string;
+		watchers: string;
+		gitUrl: string;
+		createdAt: string;
+		updatedAt: string;
+		pushedAt: string;
+		license: string;
+		none: string;
+	};
+	eventTypes: Record<string, string>;
 };
 
 export function RepoModalProvider({

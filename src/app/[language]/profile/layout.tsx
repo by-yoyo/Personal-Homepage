@@ -51,7 +51,6 @@ export async function generateMetadata({
 	const { language } = await params;
 
 	const locale: Locale = isValidLocale(language) ? language : defaultLocale;
-
 	const dictionary = await getDictionary(locale);
 
 
@@ -79,52 +78,11 @@ export default async function RootLayout({
 	const { language } = await params;
 
 	const locale: Locale = isValidLocale(language) ? language : defaultLocale;
+	const dictionary = await getDictionary(locale);
 
 
 
-	const modalLabels =
-
-		locale === 'zh'
-
-			? {
-
-					modalTitle: '仓库详情',
-
-					openOnGithub: '在 GitHub 打开',
-
-					noDesc: '无描述',
-
-					created: '创建于',
-
-					updated: '更新于',
-
-					pushed: '推送于',
-
-					eventsTitle: '最近活动',
-
-					noEvents: '暂无活动记录',
-
-				}
-
-			: {
-
-					modalTitle: 'Repository details',
-
-					openOnGithub: 'Open on GitHub',
-
-					noDesc: 'No description',
-
-					created: 'Created ',
-
-					updated: 'Updated ',
-
-					pushed: 'Pushed ',
-
-					eventsTitle: 'Recent Activity',
-
-					noEvents: 'No activity records',
-
-				};
+	const modalLabels = dictionary.profile.repoModal;
 
 
 

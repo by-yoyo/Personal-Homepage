@@ -1,7 +1,6 @@
 'use client';
 
 import { forwardRef } from 'react';
-import type { Locale } from '@/dictionaries';
 import type { PaginationSlot } from './repoPagination';
 import { stepPageIndex } from './repoPagination';
 import styles from './page.module.css';
@@ -13,10 +12,11 @@ type RepoPaginationBarProps = {
 	/** 页码一次能全显时：左右箭头紧贴页码，不拉散 */
 	arrowsTightToPages: boolean;
 	setPageIndex: (n: number | ((p: number) => number)) => void;
-	locale: Locale;
 	prevLabel: string;
 	nextLabel: string;
 	navAriaLabel: string;
+	pageGroupAriaLabel: string;
+	pageAriaTemplate: string;
 };
 
 export const RepoPaginationBar = forwardRef<HTMLElement, RepoPaginationBarProps>(
@@ -27,14 +27,15 @@ export const RepoPaginationBar = forwardRef<HTMLElement, RepoPaginationBarProps>
 			totalPages,
 			arrowsTightToPages,
 			setPageIndex,
-			locale,
 			prevLabel,
 			nextLabel,
 			navAriaLabel,
+			pageGroupAriaLabel,
+			pageAriaTemplate,
 		},
 		ref,
 	) {
-		const pageGroupAria = locale === 'zh' ? '页码' : 'Page numbers';
+		const pageGroupAria = pageGroupAriaLabel;
 		const navClass =
 			styles.pagination +
 			(arrowsTightToPages ? ` ${styles.paginationTight}` : '');
@@ -78,9 +79,7 @@ export const RepoPaginationBar = forwardRef<HTMLElement, RepoPaginationBarProps>
 								}
 								aria-current={active ? 'page' : undefined}
 								aria-label={
-									locale === 'zh'
-										? `第 ${idx + 1} 页`
-										: `Page ${idx + 1}`
+									pageAriaTemplate.replace('{page}', String(idx + 1))
 								}
 								onClick={() => setPageIndex(idx)}
 							>

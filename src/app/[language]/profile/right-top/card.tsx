@@ -7,12 +7,19 @@ export default async function RightTopCard({ locale }: { locale: Locale }) {
 	const dictionary = await getDictionary(locale);
 	const summary = await fetchGithubContributionsSummary(locale);
 	const contributions = dictionary.profile.contributions;
+	const aria = dictionary.profile.aria;
 
 	return (
 		<div className={styles.box}>
 			<ContributionsPanel
+				locale={locale}
 				contributions={contributions}
 				summary={summary}
+				aria={{
+					panel: aria.contributionsPanel,
+					calendarSvg: aria.contributionsCalendarSvg,
+					streakStats: aria.streakStats,
+				}}
 			/>
 		</div>
 	);

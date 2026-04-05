@@ -1,16 +1,28 @@
-export const locales = ['en', 'zh'] as const;
+export const locales = ['en', 'zh', 'ja'] as const;
 export const defaultLocale = 'en' as const;
 export type Locale = (typeof locales)[number];
 
+export function localeToBCP47(locale: Locale): string {
+	if (locale === 'zh') return 'zh-CN';
+	if (locale === 'ja') return 'ja-JP';
+	return 'en-US';
+}
+
 import type enDictionary from './en.json';
 import type zhDictionary from './zh.json';
+import type jaDictionary from './ja.json';
 
-type AllKeys = keyof typeof enDictionary | keyof typeof zhDictionary;
+type AllKeys =
+	| keyof typeof enDictionary
+	| keyof typeof zhDictionary
+	| keyof typeof jaDictionary;
 
 type DictionaryValue<K extends AllKeys> = K extends keyof typeof enDictionary
 	? (typeof enDictionary)[K]
 	: K extends keyof typeof zhDictionary
 		? (typeof zhDictionary)[K]
+		: K extends keyof typeof jaDictionary
+			? (typeof jaDictionary)[K]
 		: never;
 
 export type Dictionary = {

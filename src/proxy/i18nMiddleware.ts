@@ -10,8 +10,8 @@ import Negotiator from 'negotiator';
 export default function i18nMiddleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   
-  // Skip if already has a valid locale prefix
-  const firstSegment = pathname.split('/')[1];
+  const pathSegments = pathname.split('/').filter((segment) => segment !== '');
+  const firstSegment = pathSegments[0];
   /*
   if (isValidLocale(firstSegment)) {
     return NextResponse.next();
@@ -20,12 +20,9 @@ export default function i18nMiddleware(req: NextRequest) {
 
 	if (isValidLocale(firstSegment)) {
 		// 如果是 /{locale} 格式（只有语言段），重定向到 /{locale}/profile
-		const pathSegments = pathname
-			.split('/')
-			.filter((segment) => segment !== '');
 		if (pathSegments.length === 1) {
 			// 只有语言段，没有其他路径
-			const redirectUrl = new URL(req.nextUrl);
+			const redirectUrl = req.nextUrl.clone();
 			redirectUrl.pathname = `/${firstSegment}/profile`;
 			redirectUrl.search = search;
 			return NextResponse.redirect(redirectUrl);
@@ -36,16 +33,20 @@ export default function i18nMiddleware(req: NextRequest) {
   
   // Get preferred language from browser
   const acceptLanguage = req.headers.get('accept-language') || '';
-  const negotiator = new Negotiator({ 
-    headers: { 'accept-language': acceptLanguage } 
+  const negotiator = new Negotiator({
+    headers: { 'accept-language': acceptLanguage },
   });
   
   try {
     const languages = negotiator.languages();
-    const matchedLocale = match(languages, locales as unknown as string[], defaultLocale);
+    const matchedLocale = match(
+			languages,
+			locales as unknown as string[],
+			defaultLocale,
+		);
     
     // Create redirect URL with locale
-    const redirectUrl = new URL(req.nextUrl);
+    const redirectUrl = req.nextUrl.clone();
     if (pathname === '/') {
 			redirectUrl.pathname = `/${matchedLocale}/profile`;
 		} else {
@@ -60,8 +61,8 @@ export default function i18nMiddleware(req: NextRequest) {
     console.error('Language detection failed:', error);
     
     // Fallback to default locale
-    const fallbackUrl = new URL(req.nextUrl);
-    fallbackUrl.pathname = `/${defaultLocale}${pathname}`;
+    const fallbackUrl = req.nextUrl.clone();
+    fallbackUrl.pathname = pathname === '/' ? `/${defaultLocale}/profile` : `/${defaultLocale}${pathname}`;
     fallbackUrl.search = search;
     
     return NextResponse.redirect(fallbackUrl);

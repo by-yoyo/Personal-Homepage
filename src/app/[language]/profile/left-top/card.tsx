@@ -1,13 +1,13 @@
 import Image from 'next/image';
 
-import { getDictionary, type Locale } from '@/dictionaries';
+import { getDictionary, localeToBCP47, type Locale } from '@/dictionaries';
 import { fetchSiteGithubUserProfile } from '@/lib/github';
 import styles from './page.module.css';
 
 function formatJoinedAt(iso: string, locale: Locale): string {
 	const d = new Date(iso);
 	if (Number.isNaN(d.getTime())) return iso;
-	return d.toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
+	return d.toLocaleDateString(localeToBCP47(locale), {
 		year: 'numeric',
 		month: 'long',
 		day: 'numeric',
@@ -44,7 +44,7 @@ export default async function LeftTopCard({ locale }: { locale: Locale }) {
 	if (!githubUser) {
 		return (
 			<div className={styles.box}>
-				<p className={styles.empty}>无法加载 GitHub 资料</p>
+				<p className={styles.empty}>{dictionary.profile.githubProfileLoadFail}</p>
 			</div>
 		);
 	}
@@ -104,7 +104,7 @@ export default async function LeftTopCard({ locale }: { locale: Locale }) {
 					<div className={styles.segmentRow}>
 						{created_at ? (
 							<p className={styles.joined}>
-								{locale === 'zh' ? '加入于 ' : 'Joined '}
+								{dictionary.profile.joinedPrefix}
 								<time dateTime={created_at}>
 									{formatJoinedAt(created_at, locale)}
 								</time>
@@ -140,15 +140,15 @@ export default async function LeftTopCard({ locale }: { locale: Locale }) {
 				)}
 				<dl className={styles.stats}>
 					<div className={styles.stat}>
-						<dt className={styles.statLabel}>仓库</dt>
+						<dt className={styles.statLabel}>{dictionary.profile.stats.repos}</dt>
 						<dd className={styles.statValue}>{public_repos}</dd>
 					</div>
 					<div className={styles.stat}>
-						<dt className={styles.statLabel}>星标</dt>
+						<dt className={styles.statLabel}>{dictionary.profile.stats.stars}</dt>
 						<dd className={styles.statValue}>{total_stargazers}</dd>
 					</div>
 					<div className={styles.stat}>
-						<dt className={styles.statLabel}>粉丝</dt>
+						<dt className={styles.statLabel}>{dictionary.profile.stats.followers}</dt>
 						<dd className={styles.statValue}>{followers}</dd>
 					</div>
 				</dl>

@@ -9,7 +9,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import type { Locale } from '@/dictionaries';
+import { localeToBCP47, type Locale } from '@/dictionaries';
 import type { GithubRepoSummary } from '@/lib/github';
 import { useRepoModal } from '../repo-modal-context';
 import { cn } from '@/lib/utils';
@@ -28,17 +28,6 @@ type RepoSortMode =
 	| 'updated_asc'
 	| 'stars_desc'
 	| 'stars_asc';
-
-const SORT_OPTIONS: readonly {
-	value: RepoSortMode;
-	zh: string;
-	en: string;
-}[] = [
-	{ value: 'updated_desc', zh: '最近更新', en: 'Recently updated' },
-	{ value: 'updated_asc', zh: '最远更新', en: 'Oldest update' },
-	{ value: 'stars_desc', zh: '最多星标', en: 'Most stars' },
-	{ value: 'stars_asc', zh: '最少星标', en: 'Fewest stars' },
-] as const;
 
 function parseIsoMs(iso: string): number {
 	const t = Date.parse(iso);
@@ -62,22 +51,24 @@ function sortRepos(
 	return [...repos].sort(compareByRepoSort[mode]);
 }
 
-function sortOptionsForLocale(locale: Locale): {
+function sortOptionsForLocale(labels: RightBottomRepoLabels): {
 	value: RepoSortMode;
 	label: string;
 }[] {
-	const zh = locale === 'zh';
-	return SORT_OPTIONS.map(({ value, zh: lZh, en }) => ({
-		value,
-		label: zh ? lZh : en,
-	}));
+	const so = labels.sortOptions;
+	return [
+		{ value: 'updated_desc', label: so.updated_desc },
+		{ value: 'updated_asc', label: so.updated_asc },
+		{ value: 'stars_desc', label: so.stars_desc },
+		{ value: 'stars_asc', label: so.stars_asc },
+	];
 }
 
 function formatRepoDate(iso: string, locale: Locale): string {
 	if (!iso) return '—';
 	const d = new Date(iso);
 	if (Number.isNaN(d.getTime())) return iso;
-	return d.toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
+	return d.toLocaleDateString(localeToBCP47(locale), {
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric',
@@ -103,28 +94,38 @@ export type RightBottomRepoLabels = {
 	prev: string;
 	next: string;
 	paginationAria: string;
+	sortTriggerAria: string;
+	sortListAria: string;
+	pageGroupAria: string;
+	repoEntryAriaTemplate: string;
+	pageAriaTemplate: string;
+	sortOptions: {
+		updated_desc: string;
+		updated_asc: string;
+		stars_desc: string;
+		stars_asc: string;
+	};
 };
 
 function RepoSortMenu({
-	locale,
 	sortMode,
 	onSortChange,
+	labels,
 }: {
-	locale: Locale;
 	sortMode: RepoSortMode;
 	onSortChange: (mode: RepoSortMode) => void;
+	labels: RightBottomRepoLabels;
 }) {
 	const [open, setOpen] = useState(false);
 	const rootRef = useRef<HTMLDivElement>(null);
 	const listId = useId();
 
-	const options = useMemo(() => sortOptionsForLocale(locale), [locale]);
+	const options = useMemo(() => sortOptionsForLocale(labels), [labels]);
 	const currentLabel =
 		options.find((o) => o.value === sortMode)?.label ?? '';
 
-	const sortTriggerAria =
-		locale === 'zh' ? '切换列表顺序' : 'Change list order';
-	const sortListAria = locale === 'zh' ? '顺序选项' : 'Sort options';
+	const sortTriggerAria = labels.sortTriggerAria;
+	const sortListAria = labels.sortListAria;
 
 	useEffect(() => {
 		if (!open) return;
@@ -241,11 +242,7 @@ const RepoEntry = memo(function RepoEntry({
 					handleClick();
 				}
 			}}
-			aria-label={
-				locale === 'zh'
-					? `查看仓库详情：${repo.name}`
-					: `View repository details: ${repo.name}`
-			}>
+			aria-label={labels.repoEntryAriaTemplate.replace('{name}', repo.name)}>
 			<div className={styles.repoTitleRow}>
 				<h3 className={styles.repoName}>
 					<span className={styles.repoNameText}>{repo.name}</span>
@@ -361,9 +358,9 @@ export function RightBottomCardClient({
 				</h2>
 				{hasRepos ? (
 					<RepoSortMenu
-						locale={locale}
 						sortMode={sortMode}
 						onSortChange={handleSortChange}
+						labels={labels}
 					/>
 				) : null}
 			</header>
@@ -391,10 +388,11 @@ export function RightBottomCardClient({
 							totalPages={totalPages}
 							arrowsTightToPages={arrowsTightToPages}
 							setPageIndex={setPageIndex}
-							locale={locale}
 							prevLabel={labels.prev}
 							nextLabel={labels.next}
 							navAriaLabel={labels.paginationAria}
+							pageGroupAriaLabel={labels.pageGroupAria}
+							pageAriaTemplate={labels.pageAriaTemplate}
 						/>
 					) : null}
 				</>

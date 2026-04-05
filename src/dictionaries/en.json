@@ -9,6 +9,74 @@
 		"typewriterWelcome": "Welcome to my homepage",
 		"typewriterWelcomePrefix": "Welcome to ",
 		"typewriterWelcomeSuffix": "my homepage",
+		"githubProfileLoadFail": "Unable to load GitHub profile.",
+		"joinedPrefix": "Joined ",
+		"stats": {
+			"repos": "Repos",
+			"stars": "Stars",
+			"followers": "Followers"
+		},
+		"aria": {
+			"contributionsPanel": "GitHub contributions",
+			"contributionsCalendarSvg": "GitHub contributions calendar",
+			"streakStats": "Streak stats"
+		},
+		"repoModal": {
+			"modalTitle": "Repository details",
+			"openOnGithub": "Open on GitHub",
+			"noDesc": "No description",
+			"created": "Created ",
+			"updated": "Updated ",
+			"pushed": "Pushed ",
+			"eventsTitle": "Recent Activity",
+			"noEvents": "No activity records",
+			"close": "Close",
+			"meta": {
+				"language": "Language",
+				"stars": "Stars",
+				"forks": "Forks",
+				"issues": "Issues",
+				"watchers": "Watchers",
+				"gitUrl": "Git URL",
+				"createdAt": "Created",
+				"updatedAt": "Updated",
+				"pushedAt": "Pushed",
+				"license": "License",
+				"none": "None"
+			},
+			"eventTypes": {
+				"PushEvent": "Push",
+				"WatchEvent": "Watch",
+				"CreateEvent": "Create",
+				"DeleteEvent": "Delete",
+				"ForkEvent": "Fork",
+				"IssuesEvent": "Issue",
+				"PullRequestEvent": "Pull Request",
+				"ReleaseEvent": "Release"
+			}
+		},
+		"repositories": {
+			"cardTitle": "My repositories",
+			"empty": "No public repository data.",
+			"noDesc": "No description",
+			"created": "Created ",
+			"updated": "Updated ",
+			"pushed": "Pushed ",
+			"prev": "Previous",
+			"next": "Next",
+			"paginationAria": "Repository pages",
+			"sortTriggerAria": "Change list order",
+			"sortListAria": "Sort options",
+			"pageGroupAria": "Page numbers",
+			"repoEntryAriaTemplate": "View repository details: {name}",
+			"pageAriaTemplate": "Page {page}",
+			"sortOptions": {
+				"updated_desc": "Recently updated",
+				"updated_asc": "Oldest update",
+				"stars_desc": "Most stars",
+				"stars_asc": "Fewest stars"
+			}
+		},
 		"contributions": {
 			"title": "GitHub contributions",
 			"calendarTitlePrefix": "Calendar: ",

@@ -1,0 +1,100 @@
+{
+	"profilePageTitle": "秋瑾の個人ホームページ",
+	"aboutPageTitle": "秋瑾について",
+	"linkPageTitle": "秋瑾のプロジェクトリンク",
+	"navblog": "ブログ",
+	"navbrandTitle": "秋瑾",
+	"profile": {
+		"title": "ホーム",
+		"typewriterWelcome": "ようこそ",
+		"typewriterWelcomePrefix": "ようこそ ",
+		"typewriterWelcomeSuffix": "私の個人ホームページへ",
+		"githubProfileLoadFail": "GitHub プロフィールを読み込めません。",
+		"joinedPrefix": "参加日 ",
+		"stats": {
+			"repos": "リポジトリ",
+			"stars": "スター",
+			"followers": "フォロワー"
+		},
+		"aria": {
+			"contributionsPanel": "GitHub の貢献",
+			"contributionsCalendarSvg": "GitHub 貢献カレンダー",
+			"streakStats": "連続記録"
+		},
+		"repoModal": {
+			"modalTitle": "リポジトリ詳細",
+			"openOnGithub": "GitHub で開く",
+			"noDesc": "説明なし",
+			"created": "作成 ",
+			"updated": "更新 ",
+			"pushed": "プッシュ ",
+			"eventsTitle": "最近のアクティビティ",
+			"noEvents": "アクティビティがありません",
+			"close": "閉じる",
+			"meta": {
+				"language": "言語",
+				"stars": "スター",
+				"forks": "Forks",
+				"issues": "Issues",
+				"watchers": "Watchers",
+				"gitUrl": "Git URL",
+				"createdAt": "作成日",
+				"updatedAt": "更新日",
+				"pushedAt": "最終プッシュ",
+				"license": "ライセンス",
+				"none": "なし"
+			},
+			"eventTypes": {
+				"PushEvent": "Push",
+				"WatchEvent": "Watch",
+				"CreateEvent": "Create",
+				"DeleteEvent": "Delete",
+				"ForkEvent": "Fork",
+				"IssuesEvent": "Issue",
+				"PullRequestEvent": "Pull Request",
+				"ReleaseEvent": "Release"
+			}
+		},
+		"repositories": {
+			"cardTitle": "リポジトリ",
+			"empty": "公開リポジトリのデータがありません。",
+			"noDesc": "説明なし",
+			"created": "作成 ",
+			"updated": "更新 ",
+			"pushed": "プッシュ ",
+			"prev": "前へ",
+			"next": "次へ",
+			"paginationAria": "リポジトリのページ",
+			"sortTriggerAria": "並び替えを変更",
+			"sortListAria": "並び替えオプション",
+			"pageGroupAria": "ページ番号",
+			"repoEntryAriaTemplate": "リポジトリ詳細を表示: {name}",
+			"pageAriaTemplate": "ページ {page}",
+			"sortOptions": {
+				"updated_desc": "最近更新",
+				"updated_asc": "最古更新",
+				"stars_desc": "スターが多い",
+				"stars_asc": "スターが少ない"
+			}
+		},
+		"contributions": {
+			"title": "GitHub の貢献",
+			"calendarTitlePrefix": "カレンダー: ",
+			"byYearLabel": "年別",
+			"totalLabel": "総貢献数",
+			"currentStreakLabel": "現在の連続",
+			"longestStreakLabel": "最長の連続",
+			"emptyCalendar": "貢献カレンダーを読み込めません。",
+			"emptyYears": "年別データがありません。"
+		},
+		"languagesRankedIntro": "リポジトリ数ベースで使用した上位 6 つのスタック: ",
+		"activityChartTitle": "今年の貢献",
+		"bioEmptyFallback": "自己紹介はまだ書いていません。"
+	},
+	"about": {
+		"title": "概要"
+	},
+	"link": {
+		"title": "リンク"
+	}
+}

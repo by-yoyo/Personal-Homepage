@@ -1,4 +1,4 @@
-import type { Locale } from '@/dictionaries';
+import { localeToBCP47, type Locale } from '@/dictionaries';
 
 export type ContributionDay = { date: string; count: number };
 
@@ -32,7 +32,10 @@ function calendarMonthLabel(month1To12: number, locale: Locale): string {
 	if (m < 1 || m > 12) return String(month1To12);
 	if (locale === 'zh') return ZH_MONTH_NAMES[m - 1]!;
 	const d = new Date(Date.UTC(2000, m - 1, 1));
-	return d.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
+	return d.toLocaleDateString(localeToBCP47(locale), {
+		month: 'short',
+		timeZone: 'UTC',
+	});
 }
 
 /**

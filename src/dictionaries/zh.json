@@ -9,6 +9,74 @@
 		"typewriterWelcome": "欢迎您到来",
 		"typewriterWelcomePrefix": "欢迎您到来",
 		"typewriterWelcomeSuffix": "我的个人主页",
+		"githubProfileLoadFail": "无法加载 GitHub 资料",
+		"joinedPrefix": "加入于 ",
+		"stats": {
+			"repos": "仓库",
+			"stars": "星标",
+			"followers": "粉丝"
+		},
+		"aria": {
+			"contributionsPanel": "GitHub 贡献",
+			"contributionsCalendarSvg": "GitHub 贡献日历",
+			"streakStats": "连续贡献统计"
+		},
+		"repoModal": {
+			"modalTitle": "仓库详情",
+			"openOnGithub": "在 GitHub 打开",
+			"noDesc": "无描述",
+			"created": "创建于",
+			"updated": "更新于",
+			"pushed": "推送于",
+			"eventsTitle": "最近活动",
+			"noEvents": "暂无活动记录",
+			"close": "关闭",
+			"meta": {
+				"language": "语言",
+				"stars": "星标",
+				"forks": "Forks",
+				"issues": "Issues",
+				"watchers": "订阅者",
+				"gitUrl": "Git URL",
+				"createdAt": "创建于",
+				"updatedAt": "最近更新",
+				"pushedAt": "最近推送",
+				"license": "许可证",
+				"none": "无"
+			},
+			"eventTypes": {
+				"PushEvent": "推送",
+				"WatchEvent": "关注",
+				"CreateEvent": "创建",
+				"DeleteEvent": "删除",
+				"ForkEvent": "Fork",
+				"IssuesEvent": "Issue",
+				"PullRequestEvent": "Pull Request",
+				"ReleaseEvent": "发布"
+			}
+		},
+		"repositories": {
+			"cardTitle": "我的仓库",
+			"empty": "暂无公开仓库数据。",
+			"noDesc": "无描述",
+			"created": "创建于",
+			"updated": "更新于",
+			"pushed": "推送于",
+			"prev": "上一页",
+			"next": "下一页",
+			"paginationAria": "仓库分页",
+			"sortTriggerAria": "切换列表顺序",
+			"sortListAria": "顺序选项",
+			"pageGroupAria": "页码",
+			"repoEntryAriaTemplate": "查看仓库详情：{name}",
+			"pageAriaTemplate": "第 {page} 页",
+			"sortOptions": {
+				"updated_desc": "最近更新",
+				"updated_asc": "最远更新",
+				"stars_desc": "最多星标",
+				"stars_asc": "最少星标"
+			}
+		},
 		"contributions": {
 			"title": "GitHub 贡献",
 			"calendarTitlePrefix": "贡献日历：",
