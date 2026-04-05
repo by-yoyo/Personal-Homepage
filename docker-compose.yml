@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   web:
-    image: Dockerfile
+    build: .
     container_name: nextjs
     restart: unless-stopped
     ports:
@@ -14,7 +14,7 @@ services:
       # - NGINX_HOST=localhost
       # - NGINX_PORT=80
     networks:
-      - bridge
+      - webnet
 
 networks:
   webnet:
